@@ -1,7 +1,5 @@
-import React from 'react';
-import Button from '../components/Button/Button';
-import styles from './pricing.module.css';
-import { plans } from '../constants/constants';
+import Button from "../components/Button/Button";
+import styles from "./pricing.module.css";
 
 const Pricing = () => {
   return (
@@ -9,26 +7,20 @@ const Pricing = () => {
       <div className={styles.cta}>
         <h1>Ready for 100X growth? Get early access for a discount!</h1>
         <p>
-          Join our waitlist and get access to Leadsup for discounted early bird
-          prices
+          Join our waitlist and get access to Leads Lyfter for discounted early
+          bird prices
         </p>
       </div>
       <div className={styles.formContainer}>
         <form action="https://submit-form.com/NrcdWE3k">
           <h1>Join the waitlist now</h1>
           <div className={styles.form}>
-            <input
-              type="text"
-              placeholder="Enter your email"
-            />
-            <Button
-              text={'Sign Up'}
-              type={'CTA'}
-            />
+            <input type="text" placeholder="Enter your email" />
+            <Button text={"Sign Up"} type={"CTA"} />
           </div>
         </form>
       </div>
-      <div className={styles.pricingTable}>
+      {/* <div className={styles.pricingTable}>
         {plans.map((plan, index) => (
           <div
             className={styles.plan}
@@ -50,19 +42,13 @@ const Pricing = () => {
             </ul>
           </div>
         ))}
-      </div>
+      </div> */}
       <div className={styles.formContainer2}>
         <form action="https://submit-form.com/NrcdWE3k">
           <h1>Join the waitlist now</h1>
           <div className={styles.form}>
-            <input
-              type="text"
-              placeholder="Enter your email"
-            />
-            <Button
-              text={'Sign Up'}
-              type={'CTA'}
-            />
+            <input type="text" placeholder="Enter your email" />
+            <Button text={"Sign Up"} type={"CTA"} />
           </div>
         </form>
       </div>

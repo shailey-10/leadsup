@@ -21,16 +21,19 @@ const NavBar = () => {
   return (
     <div className={styles.navbar}>
       <Link href={"/"}>
-        <img
+        {/* <img
           src="/LeadsUpLogo.svg"
           alt="LeadsUp Logo"
           className={styles.logo}
-        />
+        /> */}
+        <p className={styles.logo}>
+          Leads <span>Lyfter</span>
+        </p>
       </Link>
       <div className={styles.items}>
-        <Link href={"/blog"}>
+        {/* <Link href={"/blog"}>
           <p>Blog</p>
-        </Link>
+        </Link> */}
         {!user?.displayName && (
           <Link href={"/pricing"}>
             <p>Pricing</p>

@@ -83,7 +83,7 @@ export default function Home() {
             growth!
           </h2>
           <p>
-            Leads Up is the all-in-one solution that revolutionizes lead
+            Leads Lyfter is the all-in-one solution that revolutionizes lead
             generation and insights for web design and digital marketing
             agencies. Our powerful platform equips you with the tools and data
             to identify high-quality leads, optimize your campaigns, and propel
@@ -110,12 +110,13 @@ export default function Home() {
         <div className={styles.potential}>
           <div className={styles.cta}>
             <h2>
-              Be the First to Experience Leads Up - Sign Up for Early Access!
+              Be the First to Experience Leads Lyfter - Sign Up for Early
+              Access!
             </h2>
             <p>
               Don&apos;t miss out on the game-changing solution that will
               revolutionize your agency&apos;s success. Sign up for early access
-              to Leads Up and gain a competitive edge in lead generation,
+              to Leads Lyfter and gain a competitive edge in lead generation,
               marketing campaigns, and more. Get exclusive access to our
               groundbreaking features before anyone else.
             </p>

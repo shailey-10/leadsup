@@ -15,8 +15,14 @@
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
+  padding: 20px 0px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #35324c;
+}
+
+.logo span {
+  color: #8976fd;
 }
 
 .logOut {

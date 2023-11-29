@@ -1,0 +1,40 @@
+.uspCard h3 {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  margin-top: -10px;
+}
+
+.uspCard p {
+  font-size: 16px;
+  line-height: 32px;
+  color: #333333bc;
+  text-align: left !important;
+}
+
+.icon {
+  width: 130px;
+  height: 130px;
+}
+
+@media only screen and (max-width: 600px) {
+  .icon {
+    height: 110px;
+    width: 110px;
+  }
+
+  .uspCard h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 18px;
+    margin-top: -10px;
+  }
+
+  .uspCard p {
+    font-size: 14px;
+    line-height: 32px;
+    color: #333333bc;
+    text-align: left !important;
+    margin-bottom: 50px;
+  }
+}

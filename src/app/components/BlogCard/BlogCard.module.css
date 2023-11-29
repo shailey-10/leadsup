@@ -1,0 +1,33 @@
+.blogCard img {
+  width: 350px;
+  border-radius: 12px;
+}
+
+.blogCard {
+  border-radius: 12px;
+  width: 33%;
+}
+
+.blogCard h3 {
+  margin-top: 20px;
+  font-weight: 500;
+}
+
+.blogCard h6 {
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 10px;
+  color: rgba(0, 0, 0, 0.716);
+  line-height: 26px;
+  margin-right: 20px;
+}
+
+.meta {
+  display: flex;
+  margin-right: 25px;
+  column-gap: 10px;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 10px;
+  color: rgba(0, 0, 0, 0.716);
+}

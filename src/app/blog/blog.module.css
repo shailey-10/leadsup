@@ -1,0 +1,10 @@
+.main {
+  padding: 2rem 12rem;
+}
+
+.blogContainer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 80px;
+}

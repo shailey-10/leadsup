@@ -180,6 +180,7 @@ export default function Upload() {
         marginBottom: "30px !important",
         width: "1500px",
         margin: "0 auto",
+        padding: "20px 70px",
       }}
     >
       <div

@@ -20,6 +20,26 @@ export default function Home() {
       router.push("/pending");
     }
   }, [user]);
+//   useEffect(() => {
+//     console.log('first')
+//  const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/test'
+    
+//     fetch(apiUrl, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+     
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         console.log(data)
+//       })
+//       .catch((error) => {
+//         console.error("Error:", error);
+//       });
+  
+//   },[])
   return (
     <>
       <div className={styles.radial}></div>

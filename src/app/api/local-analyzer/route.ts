@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 const puppeteer = require("puppeteer");
 
-
 export async function POST(request: Request) {
   const headers = new Headers();
   headers.set("Access-Control-Allow-Credentials", "true");
   headers.set("Access-Control-Allow-Origin", "*"); // Adjust this for production
-  headers.set("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
-  headers.set("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
+  headers.set(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+  );
+  headers.set(
+    "Access-Control-Allow-Headers",
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+  );
 
   if (request.method === "OPTIONS") {
     return new NextResponse(null, { headers, status: 204 });
@@ -270,7 +275,7 @@ async function checkClickableContacts(page: any) {
   const telLinks = await page.$$('a[href^="tel:"]');
 
   const getEmailsAndPhones = async (links: any) => {
-    const data : any = { emails: [], phones: [] };
+    const data: any = { emails: [], phones: [] };
     for (const link of links) {
       const href = await page.evaluate(
         (link: any) => link.getAttribute("href"),

@@ -25,6 +25,8 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import styles from "./page.module.css";
 
+const baseUrl = process.env.API_BASE_URL;
+
 export default function Upload() {
   const [websites, setWebsites] = useState<string[]>([]);
   const [parsedData, setParsedData] = useState<any>([]);
@@ -40,26 +42,26 @@ export default function Upload() {
   // );
 
   const { user, role, searches, setSearches } = UserAuth();
-//     useEffect(() => {
-//     console.log('first')
-//  const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/test'
-    
-//     fetch(apiUrl, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-     
-//     })
-//       .then((response) => response.json())
-//       .then((data) => {
-//         console.log(data)
-//       })
-//       .catch((error) => {
-//         console.error("Error:", error);
-//       });
-  
-//   },[])
+  //     useEffect(() => {
+  //     console.log('first')
+  //  const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/test'
+
+  //     fetch(apiUrl, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+
+  //     })
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         console.log(data)
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error:", error);
+  //       });
+
+  //   },[])
   useEffect(() => {
     if (!user) {
       router.push("/signup");
@@ -77,13 +79,13 @@ export default function Upload() {
   const dispatch = useDispatch();
 
   async function analyzeCsv() {
-    // "https://us-central1-leadsup-bd2ab.cloudfunctions.net/api";
     setLoading(true);
-    const apiUrl = "/api/local-analyzer";
-    // const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/local-analyzer'
+    const apiUrl = `${baseUrl}/api/local-analyzer`;
+
     const requestData = {
       url: websites,
     };
+
     fetch(apiUrl, {
       method: "POST",
       headers: {

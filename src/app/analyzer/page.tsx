@@ -13,7 +13,7 @@ import mergeArrays from "@/helpers/mergeArrays";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { doc, updateDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,110 +24,119 @@ import { setWebsiteData } from "../redux/websiteData";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import styles from "./page.module.css";
+import LeftPanel from "../home/components/LeftPanel";
+import Image from "next/image";
 
 const baseUrl = process.env.API_BASE_URL;
 
 export default function Upload() {
+  const [activeTab, setActiveTab] = useState("search");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [websites, setWebsites] = useState<string[]>([]);
   const [parsedData, setParsedData] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+  const { user, role, searches, setSearches } = UserAuth();
   const { websiteData } = useSelector((state: any) => state.websiteData);
   const { filteredWebsiteData } = useSelector(
     (state: any) => state.filteredWebsiteData
   );
-  const router = useRouter();
-  // const [analyzedWebsites, setAnalyzedWebsites] = useState<any>([]);
-  const [loading, setLoading] = useState(false);
-  // const [filteredAnalyzedWebsites, setFilteredAnalyzedWebsites] = useState<any>(
-  //   []
-  // );
 
-  const { user, role, searches, setSearches } = UserAuth();
-  //     useEffect(() => {
-  //     console.log('first')
-  //  const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/test'
-
-  //     fetch(apiUrl, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-
-  //     })
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         console.log(data)
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error:", error);
-  //       });
-
-  //   },[])
   useEffect(() => {
-    if (!user) {
-      router.push("/signup");
+    const mode = searchParams.get("mode");
+    if (mode) {
+      setActiveTab(mode);
     }
-    if (user && role === "viewer") {
-      router.push("/pending");
-    }
-    console.log(user);
-  }, [user]);
+  }, [searchParams]);
+
   useEffect(() => {
     dispatch(setFilteredWebsiteData(websiteData));
-    // setFilteredAnalyzedWebsites(websiteData);
   }, [websiteData]);
 
-  const dispatch = useDispatch();
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    router.push(`/analyzer?mode=${tab}`);
+  };
 
-  async function analyzeCsv() {
-    setLoading(true);
-    const apiUrl = `${baseUrl}/api/local-analyzer`;
-
-    const requestData = {
-      url: websites,
-    };
-
-    fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const mergedData = mergeArrays(parsedData, data.data);
-        console.log(data.data);
-        const usedCredits = data.data.length;
-        const docRef = doc(db, "user-roles", user?.uid);
-        updateDoc(docRef, {
-          searches: searches - usedCredits,
-        });
-        setSearches(searches - usedCredits);
-        dispatch(setWebsiteData(mergedData));
-        // setAnalyzedWebsites(mergedData);
-        console.log(mergedData);
-        setLoading(false);
-        return data;
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-  }
-
-  async function analyze() {
-    if (searches - websites.length < 0) {
+  const handleAnalyze = async () => {
+    if (searches <= 0) {
       alert("Not enough credits left, please connect to team for more credits");
       return;
     }
+
     setLoading(true);
-    await analyzeCsv()
-      .then((res) => {
-        return res;
-      })
-      .catch((err) => {
-        console.log(err, "siren, siren, siren");
+    let dataToAnalyze: string[] = [];
+
+    switch (activeTab) {
+      case "search":
+        dataToAnalyze = [searchQuery];
+        break;
+      case "url":
+        dataToAnalyze = [websiteUrl];
+        break;
+      case "csv":
+        dataToAnalyze = websites;
+        break;
+    }
+
+    await analyzeCsv(dataToAnalyze);
+  };
+
+  const analyzeCsv = async (dataToAnalyze: string[]) => {
+    const apiUrl = `http://localhost:8080/api/analyzer`;
+
+    const requestData = {
+      url: dataToAnalyze,
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
       });
-  }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Received data:", data);
+
+      if (data && data.data && Array.isArray(data.data)) {
+        console.log("Existing parsedData:", parsedData);
+        const mergedData = mergeArrays(parsedData, data.data);
+        console.log("Merged data:", mergedData);
+
+        if (mergedData.length === 0) {
+          console.warn("Merged data is empty. Using only new data.");
+          dispatch(setWebsiteData(data.data));
+          dispatch(setFilteredWebsiteData(data.data));
+        } else {
+          dispatch(setWebsiteData(mergedData));
+          dispatch(setFilteredWebsiteData(mergedData));
+        }
+
+        const usedCredits = data.data.length;
+        const docRef = doc(db, "user-roles", user?.uid);
+        await updateDoc(docRef, {
+          searches: searches - usedCredits,
+        });
+        setSearches(searches - usedCredits);
+      } else {
+        console.error("Unexpected data format:", data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [availableOptions, setAvailableOptions] = useState(filters);
   const [showFilters, setShowFilters] = useState(false);
@@ -174,9 +183,8 @@ export default function Upload() {
       );
     });
     dispatch(setFilteredWebsiteData(tempData));
-
-    // setFilteredAnalyzedWebsites(tempData);
   }
+
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
@@ -184,11 +192,16 @@ export default function Upload() {
     Papa.parse(file, {
       header: true,
       complete: (result) => {
-        const websitesArray = result.data.map((row: any) => row.Website);
+        const websitesArray = result.data
+          .map((row: any) => row.Website)
+          .filter(
+            (website: string | undefined): website is string =>
+              typeof website === "string" && website.trim() !== ""
+          );
         const parsedArray = result.data.map((row: any) => row);
         setParsedData(parsedArray);
         const filteredArray = websitesArray.filter(
-          (item) => item !== "" && !item.includes("facebook")
+          (item) => !item.includes("facebook")
         );
         setWebsites(filteredArray);
       },
@@ -199,120 +212,176 @@ export default function Upload() {
   };
 
   return (
-    <div
-      style={{
-        marginBottom: "30px !important",
-        width: "1500px",
-        margin: "0 auto",
-        padding: "20px 70px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <div className={styles.container}>
+      <LeftPanel />
+      <main className={styles.main}>
         <h1>Leads Analyzer</h1>
+
+        <div className={styles.optionsContainer}>
+          <div
+            className={`${styles.option} ${
+              activeTab === "search" ? styles.active : ""
+            }`}
+            onClick={() => handleTabChange("search")}
+          >
+            <div className={styles.optionRow}>
+              <Image
+                src="/vercel.svg"
+                alt="Search"
+                width={24}
+                height={24}
+                className={styles.optionIcon}
+              />
+            </div>
+            <div className={styles.optionText}>
+              <h2>Find with search</h2>
+              <p>Search like "Gyms in New York"</p>
+            </div>
+          </div>
+
+          <div
+            className={`${styles.option} ${
+              activeTab === "url" ? styles.active : ""
+            }`}
+            onClick={() => handleTabChange("url")}
+          >
+            <div className={styles.optionRow}>
+              <Image
+                src="/vercel.svg"
+                alt="Link"
+                width={24}
+                height={24}
+                className={styles.optionIcon}
+              />
+            </div>
+            <div className={styles.optionText}>
+              <h2>Find with URL</h2>
+              <p>Enter any website URL</p>
+            </div>
+          </div>
+
+          <div
+            className={`${styles.option} ${
+              activeTab === "csv" ? styles.active : ""
+            }`}
+            onClick={() => handleTabChange("csv")}
+          >
+            <div className={styles.optionRow}>
+              <Image
+                src="/vercel.svg"
+                alt="CSV File"
+                width={24}
+                height={24}
+                className={styles.optionIcon}
+              />
+            </div>
+            <div className={styles.optionText}>
+              <h2>Find with .csv</h2>
+              <p>Upload a .csv file with website links</p>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.inputContainer}>
+          {activeTab === "search" && (
+            <input
+              type="text"
+              placeholder='Search like "Gyms in New York"'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          )}
+          {activeTab === "url" && (
+            <input
+              type="text"
+              placeholder="Enter website URL"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+            />
+          )}
+          {activeTab === "csv" && (
+            <input type="file" accept=".csv" onChange={handleFileUpload} />
+          )}
+          <button onClick={handleAnalyze}>Check lead</button>
+        </div>
+
         <div>
           <p>Remaining Credits: {searches}</p>
         </div>
-      </div>
-      <br />
-      <input type="file" accept=".csv" onChange={handleFileUpload} />
-      <br />
-      <br />
-      <button
-        style={{
-          backgroundColor: "black",
-          color: "#fff",
-          padding: "10px 25px",
-          borderRadius: "8px",
-        }}
-        onClick={analyze}
-      >
-        Analyze
-      </button>
-      <br />
-      <br />
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Loader />
-        </div>
-      ) : (
-        websiteData.length > 0 && (
-          <>
-            <div className={styles.queryBuilder}>
-              <p>Query Builder</p>
+
+        {loading ? (
+          <div className={styles.loaderContainer}>
+            <Loader />
+          </div>
+        ) : (
+          websiteData.length > 0 && (
+            <>
               <div className={styles.queryBuilder}>
-                {selectedFilter.map((filter: any, i: number) => {
-                  return (
-                    <div className={styles.queryItems} key={i}>
-                      <Select onValueChange={(value) => filterChange(value, i)}>
-                        <SelectTrigger className={styles.select}>
-                          <SelectValue placeholder="Filters" />
-                        </SelectTrigger>
-                        <SelectContent className={styles.selectContent}>
-                          {availableOptions.map((item) => {
-                            return (
-                              <SelectItem key={item.value} value={item.value}>
-                                {item.display}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      {selectedFilter && (
+                <p>Query Builder</p>
+                <div className={styles.queryBuilder}>
+                  {selectedFilter.map((filter: any, i: number) => {
+                    return (
+                      <div className={styles.queryItems} key={i}>
                         <Select
-                          onValueChange={(value) => valueChange(value, i)}
+                          onValueChange={(value) => filterChange(value, i)}
                         >
                           <SelectTrigger className={styles.select}>
-                            <SelectValue placeholder="Value" />
+                            <SelectValue placeholder="Filters" />
                           </SelectTrigger>
                           <SelectContent className={styles.selectContent}>
-                            <SelectItem value={"Yes"}>Yes</SelectItem>
-                            <SelectItem value={"No"}>No</SelectItem>
+                            {availableOptions.map((item) => {
+                              return (
+                                <SelectItem key={item.value} value={item.value}>
+                                  {item.display}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
-                      )}
-                      <CancelOutlinedIcon onClick={() => removeFilter(i)} />
-                    </div>
-                  );
-                })}
+                        {selectedFilter && (
+                          <Select
+                            onValueChange={(value) => valueChange(value, i)}
+                          >
+                            <SelectTrigger className={styles.select}>
+                              <SelectValue placeholder="Value" />
+                            </SelectTrigger>
+                            <SelectContent className={styles.selectContent}>
+                              <SelectItem value={"Yes"}>Yes</SelectItem>
+                              <SelectItem value={"No"}>No</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        <CancelOutlinedIcon onClick={() => removeFilter(i)} />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className={styles.queryParams}>
+                  {selectedFilter.length < 3 && (
+                    <AddCircleOutlineRoundedIcon onClick={addFilter} />
+                  )}
+                  <button
+                    style={{
+                      backgroundColor: "black",
+                      color: "#fff",
+                      padding: "10px 25px",
+                      borderRadius: "8px",
+                    }}
+                    onClick={applyQuery}
+                  >
+                    Apply Query
+                  </button>
+                </div>
               </div>
-              <div className={styles.queryParams}>
-                {selectedFilter.length < 3 && (
-                  <AddCircleOutlineRoundedIcon onClick={addFilter} />
-                )}
-                <button
-                  style={{
-                    backgroundColor: "black",
-                    color: "#fff",
-                    padding: "10px 25px",
-                    borderRadius: "8px",
-                  }}
-                  onClick={applyQuery}
-                >
-                  Apply Query
-                </button>
-              </div>
-            </div>
-            <br />
+              <br />
 
-            <div className="container mx-auto py-10">
-              <DataTable columns={columns} data={filteredWebsiteData} />
-            </div>
-          </>
-        )
-      )}
-      {websiteData.length === 0 && !loading && (
-        <img
-          className={styles.demoImage}
-          src={"/demoshot.png"}
-          alt="Demo img"
-        ></img>
-      )}
+              <div className="container mx-auto py-10">
+                <DataTable columns={columns} data={filteredWebsiteData} />
+              </div>
+            </>
+          )
+        )}
+      </main>
     </div>
   );
 }

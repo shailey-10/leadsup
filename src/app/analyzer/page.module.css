@@ -38,3 +38,87 @@
   width: 100%;
   margin-left: -35px;
 }
+
+.container {
+  display: flex;
+}
+
+.main {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.optionsContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.option {
+  flex: 1;
+  padding: 20px;
+  margin: 0 10px;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.option.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.optionIcon {
+  margin-right: 10px;
+}
+
+.optionText h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.optionText p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+.inputContainer {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.inputContainer input {
+  flex-grow: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.inputContainer button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.loaderContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.demoImage {
+  max-width: 100%;
+  height: auto;
+}

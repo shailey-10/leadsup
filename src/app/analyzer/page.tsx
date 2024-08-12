@@ -13,19 +13,19 @@ import mergeArrays from "@/helpers/mergeArrays";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import { doc, updateDoc } from "firebase/firestore";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../components/Loader/Loader";
 import { db } from "../firebase-config";
+import LeftPanel from "../home/components/LeftPanel";
 import { setFilteredWebsiteData } from "../redux/filteredWebsiteData";
 import { setWebsiteData } from "../redux/websiteData";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import styles from "./page.module.css";
-import LeftPanel from "../home/components/LeftPanel";
-import Image from "next/image";
 
 const baseUrl = process.env.API_BASE_URL;
 
@@ -39,7 +39,7 @@ export default function Upload() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
-  const { user, role, searches, setSearches } = UserAuth();
+  const { user, role, searches, setSearches, idToken } = UserAuth();
   const { websiteData } = useSelector((state: any) => state.websiteData);
   const { filteredWebsiteData } = useSelector(
     (state: any) => state.filteredWebsiteData
@@ -86,7 +86,7 @@ export default function Upload() {
   };
 
   const analyzeCsv = async (dataToAnalyze: string[]) => {
-    const apiUrl = `http://localhost:8080/api/analyzer`;
+    const apiUrl = `http://localhost:8080/api/leads/getData`;
 
     const requestData = {
       url: dataToAnalyze,
@@ -97,6 +97,7 @@ export default function Upload() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Authorization: "Bearer " + idToken,
         },
         body: JSON.stringify(requestData),
       });
@@ -235,7 +236,7 @@ export default function Upload() {
             </div>
             <div className={styles.optionText}>
               <h2>Find with search</h2>
-              <p>Search like "Gyms in New York"</p>
+              <p>Search like &quot;Gyms in New York&quot;</p>
             </div>
           </div>
 

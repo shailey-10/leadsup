@@ -19,27 +19,8 @@ export default function Home() {
     } else if (user?.displayName && role && role === "viewer") {
       router.push("/pending");
     }
-  }, [user]);
-  //   useEffect(() => {
-  //     console.log('first')
-  //  const apiUrl = 'https://analyzer-ljrsjtv7ua-uc.a.run.app/api/test'
-
-  //     fetch(apiUrl, {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-
-  //     })
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         console.log(data)
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error:", error);
-  //       });
-
-  //   },[])
+  }, [role, router, user]);
+ 
   return (
     <>
       <div className={styles.radial}></div>
@@ -109,11 +90,13 @@ export default function Home() {
             to identify high-quality leads, optimize your campaigns, and propel
             your agency&apos;s success.
           </p>
-          <img
+          <Image
             className={styles.highlightImage}
-            src={"/product.png"}
-            alt="Hero img"
-          ></img>
+            src="/product.png"
+            alt="Product image"
+            width={500}
+            height={300}
+          />
           <div className={styles.uspContainer}>
             {HIGHLIGHTS.map((card, i) => {
               return (

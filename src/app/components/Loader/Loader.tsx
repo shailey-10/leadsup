@@ -1,7 +1,6 @@
-import styles from "./loader.module.css";
 
-const Loader = () => {
-  return <span className={styles.loader}></span>;
+const Loader = ({loadingMessage}: {loadingMessage: string}) => {
+  return <p style={{fontSize: '24px', fontWeight: '200'}}>{loadingMessage}</p>;
 };
 
 export default Loader;

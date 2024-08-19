@@ -280,6 +280,42 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   {
+    accessorKey: "ssl",
+    header: "SSL",
+    cell: ({ row }) => {
+      const ssl: any = row.getValue("ssl");
+      return (
+        <div style={{ textAlign: "center" }} className="text-right font-medium">
+          {ssl !== "No Data" ? (
+            <>
+              <p>
+                {ssl ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: "#047a00",
+                      fontSize: "18px",
+                      marginRight: "5px",
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: "#ff5e5e",
+                      fontSize: "18px",
+                      marginRight: "5px",
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            "No data"
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "mailtoLinks",
     header: "Clickable Email",
     cell: ({ row }) => {
@@ -351,7 +387,80 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
-
+  {
+    accessorKey: "rating",
+    header: () => {
+      return (
+        <button
+          style={{
+            backgroundColor: "transparent",
+            outline: "none",
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: "12px",
+          }}
+          onClick={() => sortBy("rating")}
+        >
+          <h2>Google Rating </h2>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      );
+    },
+    cell: ({ row }) => {
+      const rating: any = row.getValue("rating");
+      return (
+        <div style={{ textAlign: "center" }} className="text-right font-medium">
+          {rating && rating !== "No Data" ? (
+            <>
+              <p>{rating}</p>
+            </>
+          ) : (
+            "No Data"
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "reviews",
+    header: () => {
+      return (
+        <button
+          style={{
+            backgroundColor: "transparent",
+            outline: "none",
+            border: "none",
+            display: "flex",
+            alignItems: "center",
+            color: "#fff",
+            fontWeight: 800,
+            fontSize: "12px",
+          }}
+          onClick={() => sortBy("reviews")}
+        >
+          <h2>No of Reviews </h2>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      );
+    },
+    cell: ({ row }) => {
+      const reviews: any = row.getValue("reviews");
+      return (
+        <div style={{ textAlign: "center" }} className="text-right font-medium">
+          {reviews && reviews !== "No Data" ? (
+            <>
+              <p>{reviews}</p>
+            </>
+          ) : (
+            "No Data"
+          )}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "socialMediaLinks",
     header: "Social Media",
@@ -500,7 +609,6 @@ export const columns: ColumnDef<any>[] = [
     header: "H1 Optimazation",
     cell: ({ row }) => {
       const headingInfo: any = row.getValue("h1Count");
-      console.log(headingInfo);
       return (
         <div style={{ textAlign: "center" }} className="text-right font-medium">
           {headingInfo !== "No Data" ? (
@@ -708,23 +816,5 @@ export const columns: ColumnDef<any>[] = [
       );
     },
   },
-  {
-    accessorKey: "phone",
-    header: "Contact Number",
-
-    cell: ({ row }) => {
-      const phoneInfo: any = row.getValue("phone");
-      return (
-        <div className="text-right font-medium">
-          {phoneInfo && phoneInfo.length > 0
-            ? phoneInfo.map((item: string, i: number) => {
-                return <p key={i}>{item}</p>;
-              })
-            : "No contact number found"}
-        </div>
-      );
-    },
-  },
-
-  { accessorKey: "Address", header: "Address" },
+  { accessorKey: "Address", header: "Address" }
 ];

@@ -1,39 +1,36 @@
 "use client";
 import { UserAuth } from "@/context/authContext";
 import Link from "next/link";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Button from "../Button/Button";
 import styles from "./Navbar.module.css";
+import { NAVBAR_SHOWN_URLS } from "./constants";
 
 const NavBar = () => {
   const { user, logOut } = UserAuth();
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  const pathname = usePathname();
+
 
   const handleSignOut = async () => {
     try {
       await logOut();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
+  if(!NAVBAR_SHOWN_URLS.includes(pathname)){
+    return null;
+  }
+
   return (
     <div className={styles.navbar}>
       <Link href={"/"}>
-        {/* <img
-          src="/LeadsUpLogo.svg"
-          alt="LeadsUp Logo"
-          className={styles.logo}
-        /> */}
         <p className={styles.logo}>
           Leads <span>Lyfter</span>
         </p>
       </Link>
       <div className={styles.items}>
-        {/* <Link href={"/blog"}>
-          <p>Blog</p>
-        </Link> */}
         {!user?.displayName && (
           <Link href={"/pricing"}>
             <p>Pricing</p>

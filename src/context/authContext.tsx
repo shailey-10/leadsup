@@ -98,6 +98,8 @@ Authorization: "Bearer " + newIdToken
 
   const logOut = () => {
     signOut(auth);
+    setRole('')
+    setSearches(0)
   };
 
   useEffect(() => {

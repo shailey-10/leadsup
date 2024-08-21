@@ -3,25 +3,19 @@ import { filters } from "@/constants/filters";
 import AddCircleOutlineRoundedIcon from "@mui/icons-material/AddCircleOutlineRounded";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import exportFromJSON from "export-from-json";
-import { useSelector } from "react-redux";
-import { setFilteredWebsiteData } from "../../redux/filteredWebsiteData";
+import { useDispatch, useSelector } from "react-redux";
+import { setFilteredWebsiteData } from "../../redux/analyzerSlice";
 import styles from "../page.module.css";
 
 const QueryBuilder = ({ 
   selectedFilter, 
-  setSelectedFilter, 
-  websiteData, 
-  dispatch 
+  setSelectedFilter,
 }: {
   selectedFilter: Array<{ filter: string; value: string }>;
   setSelectedFilter: React.Dispatch<React.SetStateAction<Array<{ filter: string; value: string }>>>;
-  websiteData: Array<any>;
-  dispatch: React.Dispatch<any>;
 }) => {
-
-    const { filteredWebsiteData } = useSelector(
-    (state: any) => state.filteredWebsiteData
-  );
+  const dispatch = useDispatch();
+  const { websiteData } = useSelector((state: any) => state.analyzer);
   const filterChange = (value: string, i: number) => {
     let tempFilters = [...selectedFilter];
     tempFilters[i].filter = value;
@@ -56,7 +50,7 @@ const QueryBuilder = ({
   };
 
     function downloadCsv() {
-    const data = [...filteredWebsiteData];
+    const data = [...websiteData];
     const fileName = "Leads Data";
     const exportType = exportFromJSON.types.csv;
     exportFromJSON({ data, fileName, exportType });

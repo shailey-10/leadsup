@@ -11,8 +11,8 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { JSX } from "react";
-import { setFilteredWebsiteData } from "../redux/filteredWebsiteData";
-import store from "../redux/store";
+import { setFilteredWebsiteData } from '../redux/analyzerSlice';
+import { store } from "../redux/store";
 import { customDispatch } from "./customDispatchHook";
 
 let sortOrder = "asc";
@@ -23,7 +23,7 @@ interface ObjectType {
 
 function sortBy(property: string) {
   const state = store.getState();
-  const filteredWebsiteData = state.filteredWebsiteData.filteredWebsiteData;
+  const filteredWebsiteData = state.analyzer.filteredWebsiteData;
   const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
 
   const sortedData = [...filteredWebsiteData].sort(

@@ -1,11 +1,12 @@
 "use client";
 import { configureStore } from "@reduxjs/toolkit";
-import filteredWebsiteData from "./filteredWebsiteData";
-import websiteDataReducer from "./websiteData";
+import analyzerReducer from "./analyzerSlice";
 
-export default configureStore({
+export const store = configureStore({
   reducer: {
-    websiteData: websiteDataReducer,
-    filteredWebsiteData: filteredWebsiteData,
+    analyzer: analyzerReducer,
   },
 });
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

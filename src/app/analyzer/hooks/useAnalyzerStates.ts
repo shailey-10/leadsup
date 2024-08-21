@@ -1,73 +1,59 @@
-import { setWebsiteData } from '@/app/redux/websiteData';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setFilteredWebsiteData } from '../../redux/filteredWebsiteData';
+import {
+  setActiveTab,
+  setAllWebsiteUrls,
+  setAnalyzedCount,
+  setFilteredWebsiteData,
+  setSearchQuery,
+  setWebsiteData,
+  setWebsiteUrl,
+  setWebsites,
+} from '../../redux/analyzerSlice';
+import { AppDispatch, RootState } from '../../redux/store';
 
 const useAnalyzerStates = () => {
-  const [analyzedCount, setAnalyzedCount] = useState(0);
-  const [allWebsiteUrls, setAllWebsiteUrls] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState('search');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
-  const [websites, setWebsites] = useState<string[]>([]);
-  const [parsedData, setParsedData] = useState<any>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const analyzerState = useSelector((state: RootState) => state.analyzer);
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const dispatch = useDispatch();
-  const { websiteData } = useSelector((state: any) => state.websiteData);
-  const { filteredWebsiteData } = useSelector(
-    (state: any) => state.filteredWebsiteData
-  );
 
   useEffect(() => {
     const mode = searchParams.get('mode');
     if (mode) {
-      setActiveTab(mode);
+      dispatch(setActiveTab(mode));
     }
-  }, [searchParams]);
+  }, [searchParams, dispatch]);
 
   useEffect(() => {
-    dispatch(setFilteredWebsiteData(websiteData));
-  }, [dispatch, websiteData]);
+    dispatch(setFilteredWebsiteData(analyzerState.websiteData));
+  }, [dispatch, analyzerState.websiteData]);
 
   const handleTabChange = (tab: string) => {
-    setSearchQuery('');
-    setWebsiteUrl('');
-    setWebsites([]);
-    setActiveTab(tab);
+    dispatch(setSearchQuery(''));
+    dispatch(setWebsiteUrl(''));
+    dispatch(setWebsites([]));
+    dispatch(setActiveTab(tab));
     dispatch(setWebsiteData([]));
 
     router.push(`/analyzer?mode=${tab}`);
   };
 
   return {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
-    websiteUrl,
-    setWebsiteUrl,
-    websites,
-    setWebsites,
-    parsedData,
-    setParsedData,
-    loading,
-    setLoading,
-    loadingMessage,
-    setLoadingMessage,
+    ...analyzerState,
+    setActiveTab: (tab: string) => dispatch(setActiveTab(tab)),
+    setSearchQuery: (query: string) => dispatch(setSearchQuery(query)),
+    setWebsiteUrl: (url: string) => dispatch(setWebsiteUrl(url)),
+    setWebsites: (websites: string[]) => dispatch(setWebsites(websites)),
+    setWebsiteData: (data: any[]) => dispatch(setWebsiteData(data)),
+    setFilteredWebsiteData: (data: any[]) => dispatch(setFilteredWebsiteData(data)),
+    setAnalyzedCount: (count: number) => dispatch(setAnalyzedCount(count)),
+    setAllWebsiteUrls: (urls: string[]) => dispatch(setAllWebsiteUrls(urls)),
+    handleTabChange,
     router,
     dispatch,
-    websiteData,
-    filteredWebsiteData,
-    handleTabChange,
-    analyzedCount,
-    setAnalyzedCount,
-    allWebsiteUrls,
-    setAllWebsiteUrls,
   };
 };
 

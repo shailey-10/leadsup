@@ -1,7 +1,7 @@
 'use client';
 import { UserAuth } from '@/context/authContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { plans } from '../constants/constants';
 import styles from './pricing.module.css';
@@ -9,14 +9,18 @@ import styles from './pricing.module.css';
 const Pricing = () => {
   const { idToken, user, role } = UserAuth();
   const router = useRouter();
-  const url = new URL(window.location.href);
-  url.pathname = '';
+
   useEffect(() => {
     if (user?.uid && role === 'member') {
       router.push('/analyzer');
     }
   }, [role, router, user]);
+  const [domain, setDomain] = useState('');
 
+  useEffect(() => {
+    // Get domain name in the browser
+    setDomain(window.location.host);
+  }, []);
   const subscribeChargebee = (planName: string) => {
     if (!user?.email) {
       router.push('/signup');
@@ -31,19 +35,19 @@ const Pricing = () => {
             `&subscription_items[quantity][0]=1` +
             `&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${domain}paymentSuccess?checkoutId=${uniqueId}`
         );
       } else if (planName === 'freelancer') {
         router.push(
           `${process.env.NEXT_PUBLIC_CHARGEBEE_URL}/hosted_pages/checkout?subscription_items[item_price_id][0]=Basic-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${domain}paymentSuccess?checkoutId=${uniqueId}`
         );
       } else {
         router.push(
           `${process.env.NEXT_PUBLIC_CHARGEBEE_URL}/hosted_pages/checkout?subscription_items[item_price_id][0]=Plus-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${domain}paymentSuccess?checkoutId=${uniqueId}`
         );
       }
     }

@@ -20,7 +20,9 @@ export const calculateSocialPresenceScore = ({
   score += data.analytics || data.gtm ? 10 : 0;
 
   // Add points for social media links
-  const socialLinksCount = Object.keys(data.socialMediaLinks).length;
+  const socialLinksCount = data.socialMediaLinks
+    ? Object.keys(data?.socialMediaLinks)?.length
+    : 0;
   score +=
     socialLinksCount === 0
       ? 0

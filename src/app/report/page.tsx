@@ -226,7 +226,7 @@ const Report = (dummyReport: any) => {
 
   const { available, unavailable } = options.reduce(
     (acc: any, option) => {
-      const foundLink = dummyReport.socialMediaLinks.find((link: any) =>
+      const foundLink = dummyReport.socialMediaLinks?.find((link: any) =>
         link.includes(option)
       );
       if (foundLink) {
@@ -522,12 +522,12 @@ const Report = (dummyReport: any) => {
               </p>
               <p
                 style={{
-                  color: dummyReport.metaTitle.length > 60 ? 'red' : 'green',
+                  color: dummyReport.metaTitle?.length > 60 ? 'red' : 'green',
                   fontSize: '14px',
                   marginTop: '8px',
                 }}
               >
-                {dummyReport.metaTitle.length > 60
+                {dummyReport.metaTitle?.length > 60
                   ? 'Not optimized, too long'
                   : 'Optimized, perfect length'}
               </p>
@@ -540,12 +540,14 @@ const Report = (dummyReport: any) => {
               <p
                 style={{
                   color:
-                    dummyReport.metaDescriptions.length > 160 ? 'red' : 'green',
+                    dummyReport.metaDescriptions?.length > 160
+                      ? 'red'
+                      : 'green',
                   fontSize: '14px',
                   marginTop: '8px',
                 }}
               >
-                {dummyReport.metaDescriptions.length > 160
+                {dummyReport.metaDescriptions?.length > 160
                   ? 'Not optimized, too long'
                   : 'Optimized, perfect length'}
               </p>

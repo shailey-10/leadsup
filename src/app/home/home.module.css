@@ -5,13 +5,13 @@
 
 .main {
   flex-grow: 1;
-  padding: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 120px;
+  padding-top: 80px;
+  background-color: #f9f9f9;
 }
 
 .main h1 {
-    font-size: 32px;
+  font-size: 32px;
   font-weight: 500;
   color: #333333;
   margin-bottom: 12px;
@@ -27,18 +27,17 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  margin-top: 30px
+  margin-top: 30px;
 }
 
-.premiumUpsell h2{
+.premiumUpsell h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 24px;
   font-weight: 500;
   color: #333333;
-    padding: 8px 12px;
-
+  padding: 8px 12px;
 }
 
 .optionsContainer {
@@ -77,6 +76,11 @@
   gap: 1rem;
 }
 
+.option:hover,
+.freeOption:hover {
+  background-color: #e9e9e9;
+}
+
 .freeOption {
   background-color: #ffffff;
   padding: 2rem;
@@ -102,7 +106,7 @@
 }
 
 .credits {
-  background-color: #F3F3FC;
+  background-color: #fff;
   padding: 1rem;
   border-radius: 8px;
 }
@@ -114,7 +118,7 @@
 
 .credits span {
   font-weight: bold;
-  color: #333333
+  color: #333333;
 }
 
 .optionRow {
@@ -139,7 +143,7 @@
 }
 
 .background {
-  background-color: #F3F3FC;
+  background-color: #fff;
   border: none !important;
 }
 
@@ -162,7 +166,6 @@
 .freeOption h2,
 .upgradeSection h2 {
   color: #000;
-  font-family: Inter, sans-serif;
   font-size: 18px;
   font-style: normal;
   font-weight: 400;
@@ -174,7 +177,6 @@
 .option p,
 .freeOption p {
   color: #00000060;
-  font-family: Inter, sans-serif;
   font-size: 16px;
   font-style: normal;
   margin-top: -5px;

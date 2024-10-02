@@ -1,1 +1,7 @@
-export const NAVBAR_SHOWN_URLS = ['/', '/pricing', '/blog/'];
+export const NAVBAR_SHOWN_URLS = [
+  '/',
+  '/pricing',
+  '/blog/',
+  '/signup',
+  '/paymentSuccess',
+];

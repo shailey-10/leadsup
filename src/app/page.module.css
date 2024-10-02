@@ -7,9 +7,10 @@
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  z-index: 9999;
+  z-index: 2;
   width: 83%;
   margin: 0 auto;
+  margin-top: 80px;
 }
 
 .hero {
@@ -45,7 +46,7 @@
     #ffffff00
   );
   position: absolute;
-  top: -100px;
+  top: 0px;
   left: -250px;
 }
 .radial2 {
@@ -127,6 +128,7 @@
   margin: 0 auto;
   margin-top: 50px;
   column-gap: 30px;
+  justify-content: center;
 }
 
 .form input {

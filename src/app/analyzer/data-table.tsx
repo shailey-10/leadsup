@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   ColumnDef,
@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -16,11 +16,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import React, { useRef } from "react";
-import styles from "./dataTable.module.css";
-import useAnalyzerStates from "./hooks/useAnalyzerStates";
+import { UserAuth } from '@/context/authContext';
+import React, { useRef } from 'react';
+import styles from './dataTable.module.css';
+import useAnalyzerStates from './hooks/useAnalyzerStates';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -32,14 +33,48 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const {activeTab} = useAnalyzerStates()
-      let filteredColumns = columns
-      if (activeTab === 'url') {
-       filteredColumns = columns.filter(column => 'accessorKey' in column && column.accessorKey !== 'Address' && column.accessorKey !== 'Name' && column.accessorKey !== 'reviews' && column.accessorKey !== 'rating' && column.accessorKey !== 'Website');
-    }
-          if (activeTab === 'csv') {
-       filteredColumns = columns.filter(column => 'accessorKey' in column && column.accessorKey !== 'Address'  && column.accessorKey !== 'reviews' && column.accessorKey !== 'rating' );
-    }
+  const { plan } = UserAuth();
+  const { activeTab } = useAnalyzerStates();
+  let filteredColumns = columns;
+  if (activeTab === 'url') {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'Address' &&
+        column.accessorKey !== 'Name' &&
+        column.accessorKey !== 'reviews' &&
+        column.accessorKey !== 'rating' &&
+        column.accessorKey !== 'Website'
+    );
+  }
+  if (activeTab === 'csv') {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'Address' &&
+        column.accessorKey !== 'reviews' &&
+        column.accessorKey !== 'rating'
+    );
+  }
+  if (
+    plan &&
+    plan !== 'Free' &&
+    plan !== 'Pro-USD-Monthly' &&
+    plan !== 'Plus-USD-Monthly'
+  ) {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'google' &&
+        column.accessorKey !== 'facebook' &&
+        column.accessorKey !== 'linkedin' &&
+        column.accessorKey !== 'twitter' &&
+        column.accessorKey !== 'analytics' &&
+        column.accessorKey !== 'gtm' &&
+        column.accessorKey !== 'isResponsive' &&
+        column.accessorKey !== 'pageSpeed'
+    );
+  }
 
   const table = useReactTable({
     data,
@@ -53,18 +88,16 @@ export function DataTable<TData, TValue>({
   });
   const tableRef = useRef(null);
 
-
-
   return (
     <>
       <div
         style={{
-          maxWidth: "1250px",
-          maxHeight: "70vh",
-          overflow: "scroll",
-          border: "1px solid #333",
-          marginBottom: "30px",
-          marginTop: "30px",
+          maxWidth: '1250px',
+          maxHeight: '70vh',
+          overflow: 'scroll',
+          border: '1px solid #333',
+          marginBottom: '30px',
+          marginTop: '30px',
         }}
         className="rounded-md border"
       >
@@ -92,7 +125,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={styles.cell}>
@@ -107,7 +140,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={filteredColumns.length}
                   className="h-24 text-center"
                 >
                   No results.

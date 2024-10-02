@@ -1,40 +1,39 @@
-import { NextResponse } from "next/server";
-const puppeteer = require("puppeteer");
+import { NextResponse } from 'next/server';
+const puppeteer = require('puppeteer');
 
 export async function POST(request: Request) {
   const headers = new Headers();
-  headers.set("Access-Control-Allow-Credentials", "true");
-  headers.set("Access-Control-Allow-Origin", "*"); // Adjust this for production
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  headers.set('Access-Control-Allow-Origin', '*'); // Adjust this for production
   headers.set(
-    "Access-Control-Allow-Methods",
-    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+    'Access-Control-Allow-Methods',
+    'GET,OPTIONS,PATCH,DELETE,POST,PUT'
   );
   headers.set(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  if (request.method === "OPTIONS") {
+  if (request.method === 'OPTIONS') {
     return new NextResponse(null, { headers, status: 204 });
   }
 
-  if (request.method === "POST") {
+  if (request.method === 'POST') {
     try {
       const { url } = await request.json();
-      console.log("Parsed JSON data:", url);
       const data = await auditWebsites(url);
       return NextResponse.json({ data }, { headers });
     } catch (error) {
-      console.error("Error processing websites:", error);
-      return new NextResponse("ERROR", { status: 500, headers });
+      console.error('Error processing websites:', error);
+      return new NextResponse('ERROR', { status: 500, headers });
     }
   }
 
-  return new NextResponse("Method Not Allowed", { status: 405, headers });
+  return new NextResponse('Method Not Allowed', { status: 405, headers });
 }
 async function auditWebsites(urls: any) {
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox"],
+    args: ['--no-sandbox'],
     timeout: 60000,
   });
 
@@ -52,7 +51,7 @@ async function auditWebsites(urls: any) {
           return auditData;
         } catch (error) {
           console.error(`Error while auditing ${url}: ${error}`);
-          return { url, error: "An error occurred during the audit." };
+          return { url, error: 'An error occurred during the audit.' };
         }
       });
 
@@ -62,7 +61,7 @@ async function auditWebsites(urls: any) {
 
     return auditResults;
   } catch (error) {
-    console.error("Error during audits:", error);
+    console.error('Error during audits:', error);
     throw error; // Rethrow the error to be caught by the calling function
   } finally {
     await browser.close();
@@ -139,16 +138,16 @@ async function checkPageSpeed(page: any) {
 }
 
 async function checkImages(page: any) {
-  const imageElements = await page.$$("img");
+  const imageElements = await page.$$('img');
   const totalImages = imageElements.length;
   let imagesWithAlt = 0;
 
   for (const imgElement of imageElements) {
     const altAttribute = await imgElement.evaluate((el: any) =>
-      el.getAttribute("alt")
+      el.getAttribute('alt')
     );
 
-    if (altAttribute && altAttribute.trim() !== "") {
+    if (altAttribute && altAttribute.trim() !== '') {
       imagesWithAlt++;
     }
   }
@@ -157,15 +156,15 @@ async function checkImages(page: any) {
 }
 
 async function countInternalAndExternalLinks(page: any) {
-  const links = await page.$$eval("a", (elements: any) =>
-    elements.map((element: any) => element.getAttribute("href"))
+  const links = await page.$$eval('a', (elements: any) =>
+    elements.map((element: any) => element.getAttribute('href'))
   );
   const { hostname: pageHostname } = new URL(page.url());
   let internalLinks = 0;
   let externalLinks = 0;
 
   for (const link of links) {
-    if (!link || !link.includes("http")) {
+    if (!link || !link.includes('http')) {
       continue;
     }
 
@@ -192,23 +191,23 @@ async function checkResponsiveDesign(page: any) {
   const metaViewport = await page.evaluate(() => {
     const metaViewportElement = document.querySelector('meta[name="viewport"]');
     if (metaViewportElement) {
-      return metaViewportElement.getAttribute("content");
+      return metaViewportElement.getAttribute('content');
     }
     return null;
   });
 
-  return metaViewport && metaViewport.includes("width=device-width");
+  return metaViewport && metaViewport.includes('width=device-width');
 }
 
 async function checkSocialMediaLinks(page: any) {
   // Define social media platforms to check
   const socialMediaPlatforms: any = [
-    "instagram.com",
-    "facebook.com",
-    "twitter.com",
-    "yelp.com",
-    "pinterest.com",
-    "linkedin.com",
+    'instagram.com',
+    'facebook.com',
+    'twitter.com',
+    'yelp.com',
+    'pinterest.com',
+    'linkedin.com',
   ];
 
   const socialMediaLinks: any = {};
@@ -224,7 +223,7 @@ async function checkSocialMediaLinks(page: any) {
 }
 
 async function checkHeadings(page: any) {
-  const h1Tags = await page.$$("h1");
+  const h1Tags = await page.$$('h1');
   let primaryH1 = null;
   let h1Opt = null;
 
@@ -251,7 +250,7 @@ async function checkMetaDescriptions(page: any) {
 
   if (metaDescriptionElement) {
     metaDescription = await page.evaluate(
-      (el: any) => el.getAttribute("content"),
+      (el: any) => el.getAttribute('content'),
       metaDescriptionElement
     );
   }
@@ -278,13 +277,13 @@ async function checkClickableContacts(page: any) {
     const data: any = { emails: [], phones: [] };
     for (const link of links) {
       const href = await page.evaluate(
-        (link: any) => link.getAttribute("href"),
+        (link: any) => link.getAttribute('href'),
         link
       );
-      if (href && href.startsWith("mailto:")) {
-        data.emails.push(href.replace("mailto:", ""));
-      } else if (href && href.startsWith("tel:")) {
-        data.phones.push(href.replace("tel:", ""));
+      if (href && href.startsWith('mailto:')) {
+        data.emails.push(href.replace('mailto:', ''));
+      } else if (href && href.startsWith('tel:')) {
+        data.phones.push(href.replace('tel:', ''));
       }
     }
     return data;
@@ -313,15 +312,15 @@ async function checkGoogleAds(page: any) {
     gtm: false,
   };
 
-  const searchString = "https://googleads.g.doubleclick.net";
+  const searchString = 'https://googleads.g.doubleclick.net';
   // Enable request interception
   const client = await page.target().createCDPSession();
-  await client.send("Network.enable");
+  await client.send('Network.enable');
 
   // Listen for network requests.
-  client.on("Network.responseReceived", (response: any) => {
+  client.on('Network.responseReceived', (response: any) => {
     const url = response.response.url;
-    if (url.includes("googleads.g.doubleclick.net")) {
+    if (url.includes('googleads.g.doubleclick.net')) {
       adsPresent.google = true;
     }
   });
@@ -329,19 +328,19 @@ async function checkGoogleAds(page: any) {
   // You may also filter by MIME type if needed:
   // client.send('Network.setRequestInterception', { patterns: [{ urlPattern: '*/*' }] });
 
-  await page.waitForSelector("script[src]");
-  page.on("response", (response: any) => {
+  await page.waitForSelector('script[src]');
+  page.on('response', (response: any) => {
     const url = response.url();
-    if (url.includes("googleads.g.doubleclick.net")) {
+    if (url.includes('googleads.g.doubleclick.net')) {
       adsPresent.google = true;
     }
   });
 
-  const scripts = await page.$$eval("script[src]", (elements: any) => {
-    return elements.map((element: any) => element.getAttribute("src"));
+  const scripts = await page.$$eval('script[src]', (elements: any) => {
+    return elements.map((element: any) => element.getAttribute('src'));
   });
 
-  const asyncScripts = await page.$$eval("script[async]", (scripts: any) => {
+  const asyncScripts = await page.$$eval('script[async]', (scripts: any) => {
     return scripts.map((script: any) => {
       return {
         src: script.src,
@@ -355,32 +354,32 @@ async function checkGoogleAds(page: any) {
   });
 
   for (const script of scripts) {
-    if (!script || !script.includes("http")) {
+    if (!script || !script.includes('http')) {
       continue;
     } else if (script.includes(searchString)) {
       adsPresent.google = true;
     }
-    if (script.includes("connect.facebook.net")) {
+    if (script.includes('connect.facebook.net')) {
       adsPresent.facebook = true;
     }
     if (
-      script.includes("ads.linkedin.com") ||
-      script.includes("platform.linkedin.com") ||
-      script.includes("https://snap.licdn.com")
+      script.includes('ads.linkedin.com') ||
+      script.includes('platform.linkedin.com') ||
+      script.includes('https://snap.licdn.com')
     ) {
       adsPresent.linkedin = true;
     }
 
     if (
-      script.includes("static.ads-twitter.com") ||
-      script.includes("platform.twitter.com")
+      script.includes('static.ads-twitter.com') ||
+      script.includes('platform.twitter.com')
     ) {
       adsPresent.twitter = true;
     }
-    if (script.includes("www.google-analytics.com")) {
+    if (script.includes('www.google-analytics.com')) {
       adsPresent.analytics = true;
     }
-    if (script.includes("www.googletagmanager.com")) {
+    if (script.includes('www.googletagmanager.com')) {
       adsPresent.analytics = true;
       adsPresent.gtm = true;
     }

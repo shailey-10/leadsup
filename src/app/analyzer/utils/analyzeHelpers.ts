@@ -1,20 +1,20 @@
-import mergeArrays from "@/helpers/mergeArrays";
+import mergeArrays from '@/helpers/mergeArrays';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase-config';
 import {
   setAllWebsiteUrls,
   setAnalyzedCount,
   setFilteredWebsiteData,
   setLoadingMessage,
   setParsedData,
-  setWebsiteData
+  setWebsiteData,
 } from '../../redux/analyzerSlice';
 import { AppDispatch, RootState } from '../../redux/store';
 
 export const analyzeSearch = async (
-  searchQuery: string[], 
-  idToken: string, 
+  searchQuery: string[],
+  idToken: string,
   dispatch: AppDispatch,
   getState: () => RootState,
   user: any,
@@ -26,12 +26,12 @@ export const analyzeSearch = async (
 
   try {
     dispatch(setLoadingMessage(`Finding "${searchQuery}"...`));
-    
+
     const response = await fetch(apiUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + idToken,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
       body: JSON.stringify(requestData),
     });
@@ -41,59 +41,109 @@ export const analyzeSearch = async (
     }
 
     const data = await response.json();
-    const websiteUrls: string[] = data.data.map((item: { Website: any }) => item.Website);
+    const websiteUrls: string[] = data.data.map(
+      (item: { Website: any }) => item.Website
+    );
     const parsedArray = data.data.map((row: any) => row);
     dispatch(setParsedData(parsedArray));
     dispatch(setAllWebsiteUrls(websiteUrls));
-    dispatch(setLoadingMessage(`Found ${parsedArray.length} "${searchQuery}". Analyzing first 20 results...`));
-    
-    await analyzeNextBatch(websiteUrls, idToken, dispatch, getState, user, searches, setSearches, parsedArray);
+    dispatch(
+      setLoadingMessage(
+        `Found ${parsedArray.length} "${searchQuery}". Analyzing first 20 results...`
+      )
+    );
+
+    await analyzeNextBatch(
+      websiteUrls,
+      idToken,
+      dispatch,
+      getState,
+      user,
+      searches,
+      setSearches,
+      parsedArray,
+      true
+    );
   } catch (error) {
-    console.error("Error in analyzeSearch:", error);
-    dispatch(setLoadingMessage("An error occurred during search analysis."));
+    console.error('Error in analyzeSearch:', error);
+    dispatch(setLoadingMessage('An error occurred during search analysis.'));
   }
 };
 
 export const handleAnalyzeMore = createAsyncThunk<
   void,
-  { idToken: string; user: any; searches: number; setSearches: (searches: number) => void },
+  {
+    idToken: string;
+    user: any;
+    searches: number;
+    setSearches: (searches: number) => void;
+  },
   { state: RootState; dispatch: AppDispatch }
->(
-  'analyzer/handleAnalyzeMore',
-  async (authData, { getState, dispatch }) => {
-    const { idToken, user, searches, setSearches } = authData;
-    const state = getState();
-    const { analyzedCount, allWebsiteUrls, parsedData } = state.analyzer;
+>('analyzer/handleAnalyzeMore', async (authData, { getState, dispatch }) => {
+  const { idToken, user, searches, setSearches } = authData;
+  const state = getState();
+  const { analyzedCount, allWebsiteUrls, parsedData } = state.analyzer;
 
-    console.log(analyzedCount, allWebsiteUrls.length);
-    if (analyzedCount < allWebsiteUrls.length) {
-      dispatch(setLoadingMessage(`Analyzing next batch (${analyzedCount + 1} to ${Math.min(analyzedCount + 20, allWebsiteUrls.length)})...`));
-      await analyzeNextBatch(allWebsiteUrls, idToken, dispatch, getState, user, searches, setSearches, parsedData);
-    }
+  if (analyzedCount < allWebsiteUrls.length) {
+    dispatch(
+      setLoadingMessage(
+        `Analyzing next batch (${analyzedCount + 1} to ${Math.min(
+          analyzedCount + 20,
+          allWebsiteUrls.length
+        )})...`
+      )
+    );
+    await analyzeNextBatch(
+      allWebsiteUrls,
+      idToken,
+      dispatch,
+      getState,
+      user,
+      searches,
+      setSearches,
+      parsedData
+    );
   }
-);
+});
 
 export const analyzeNextBatch = async (
-  websiteUrls: string[], 
-  idToken: string, 
+  websiteUrls: string[],
+  idToken: string,
   dispatch: AppDispatch,
   getState: () => RootState,
   user: any,
   searches: number,
   setSearches: (searches: number) => void,
-  parsedData: any[]
+  parsedData: any[],
+  leads?: boolean
 ) => {
   const batchSize = 20;
-  
+
   // Get the current analyzed count from the state
   const currentState = getState();
   const currentAnalyzedCount = currentState.analyzer.analyzedCount;
 
-  const nextBatch = websiteUrls.slice(currentAnalyzedCount, currentAnalyzedCount + batchSize);
-  const nextParsedBatch = parsedData.slice(currentAnalyzedCount, currentAnalyzedCount + batchSize);
-  
-  await analyzeUrls(nextBatch, idToken, dispatch, getState, user, searches, setSearches, nextParsedBatch);
-  
+  const nextBatch = websiteUrls.slice(
+    currentAnalyzedCount,
+    currentAnalyzedCount + batchSize
+  );
+  const nextParsedBatch = parsedData.slice(
+    currentAnalyzedCount,
+    currentAnalyzedCount + batchSize
+  );
+
+  await analyzeUrls(
+    nextBatch,
+    idToken,
+    dispatch,
+    getState,
+    user,
+    searches,
+    setSearches,
+    nextParsedBatch,
+    leads
+  );
+
   // Update the analyzed count
   dispatch(setAnalyzedCount(currentAnalyzedCount + nextBatch.length));
 };
@@ -106,16 +156,22 @@ export const analyzeUrls = async (
   user: any,
   searches: number,
   setSearches: (searches: number) => void,
-  parsedData: any[]
+  parsedData: any[],
+  leads?: boolean
 ) => {
   const apiUrl = `http://localhost:8080/api/analyzer/audit`;
-  const requestData = { url: dataToAnalyze };
+  let requestData;
+  if (leads) {
+    requestData = { url: dataToAnalyze, leads: true };
+  } else {
+    requestData = { url: dataToAnalyze };
+  }
   try {
     const response = await fetch(apiUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + idToken,
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + idToken,
       },
       body: JSON.stringify(requestData),
     });
@@ -133,7 +189,7 @@ export const analyzeUrls = async (
       const currentWebsiteData = currentState.analyzer.websiteData;
 
       if (mergedData.length === 0) {
-        console.warn("Merged data is empty. Using only new data.");
+        console.warn('Merged data is empty. Using only new data.');
         mergedData = data.data;
       }
 
@@ -144,17 +200,16 @@ export const analyzeUrls = async (
       dispatch(setFilteredWebsiteData(updatedWebsiteData));
 
       const usedCredits = data.data.length;
-      const docRef = doc(db, "user-roles", user?.uid);
+      const docRef = doc(db, 'user-roles', user?.uid);
       await updateDoc(docRef, {
         searches: searches - usedCredits,
       });
       setSearches(searches - usedCredits);
     } else {
-      console.error("Unexpected data format:", data);
+      console.error('Unexpected data format:', data);
     }
   } catch (error) {
-    console.error("Error in analyzeUrls:", error);
-    dispatch(setLoadingMessage("An error occurred during URL analysis."));
+    console.error('Error in analyzeUrls:', error);
+    dispatch(setLoadingMessage('An error occurred during URL analysis.'));
   }
 };
-

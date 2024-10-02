@@ -16,11 +16,30 @@
   cursor: pointer;
 }
 
+.background {
+  background: #f9f9f9f9;
+  padding-bottom: 50px;
+}
+
+.placeholderImage {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.analyzerResults {
+  margin-top: 60px;
+}
+
 .queryBuilder {
   display: flex;
   column-gap: 20px;
   align-items: center;
   justify-content: space-between;
+}
+
+.inputInfo {
+  font-weight: 500;
 }
 
 .queryItems {
@@ -42,12 +61,13 @@
 
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: auto;
 }
 
 .credits {
-  background-color: #F3F3FC;
+  background-color: #fff;
   padding: 1rem;
   border-radius: 8px;
 }
@@ -59,7 +79,7 @@
 
 .credits span {
   font-weight: bold;
-  color: #333333
+  color: #333333;
 }
 .header {
   display: flex;
@@ -68,10 +88,16 @@
   padding: 20px;
 }
 
+.header h1 {
+  font-weight: 600;
+  color: #333;
+}
+
 .main {
   flex-grow: 1;
   padding: 60px;
   width: 80%;
+  background-color: #f9f9f9;
 }
 
 .dragDrop {
@@ -111,7 +137,7 @@
   min-width: 250px;
   margin: 0 10px;
   border-radius: 8px;
-  background-color: #f0f0f0;
+  background-color: #fff;
   cursor: pointer;
   align-items: center;
   transition: background-color 0.3s;
@@ -139,10 +165,10 @@
 .optionText p {
   margin: 5px 0 0;
   font-size: 12px;
-  color: #7D7D7D;
+  color: #7d7d7d;
 }
 
-.filters{
+.filters {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -150,7 +176,6 @@
 
 .inputContainer {
   display: flex;
-  margin-bottom: 40px;
   margin-top: 20px;
 }
 

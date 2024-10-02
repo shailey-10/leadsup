@@ -9,21 +9,21 @@ import { filters } from '@/constants/filters';
 import AddCircleOutlineRoundedIcon from '@mui/icons-material/AddCircleOutlineRounded';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import exportFromJSON from 'export-from-json';
-import { useDispatch, useSelector } from 'react-redux';
-import { setFilteredWebsiteData } from '../../redux/analyzerSlice';
-import styles from '../page.module.css';
+import styles from '../analyzer/page.module.css';
 
 const QueryBuilder = ({
   selectedFilter,
   setSelectedFilter,
+  websiteData,
+  setWebsiteData,
 }: {
   selectedFilter: Array<{ filter: string; value: string }>;
   setSelectedFilter: React.Dispatch<
     React.SetStateAction<Array<{ filter: string; value: string }>>
   >;
+  websiteData: any[];
+  setWebsiteData: any;
 }) => {
-  const dispatch = useDispatch();
-  const { websiteData } = useSelector((state: any) => state.analyzer);
   const filterChange = (value: string, i: number) => {
     let tempFilters = [...selectedFilter];
     tempFilters[i].filter = value;
@@ -54,7 +54,7 @@ const QueryBuilder = ({
       let value = filterItem.value === 'Yes';
       tempData = tempData.filter((item) => item[filterItem.filter] === value);
     });
-    dispatch(setFilteredWebsiteData(tempData));
+    setWebsiteData(tempData);
   };
 
   function downloadCsv() {
@@ -77,7 +77,7 @@ const QueryBuilder = ({
                 </SelectTrigger>
                 <SelectContent className={styles.selectContent}>
                   {filters.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
+                    <SelectItem key={i} value={item.value}>
                       {item.display}
                     </SelectItem>
                   ))}

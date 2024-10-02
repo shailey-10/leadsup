@@ -11,7 +11,7 @@ const UserPending = () => {
       router.push("/signup");
     }
     if (user && role && role !== "viewer") {
-      router.push("/analyzer");
+      router.push("/home");
     }
   }, [user, role, router]);
   return (

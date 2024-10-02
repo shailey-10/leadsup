@@ -38,7 +38,7 @@ const Account = () => {
     const requestData = { subscriptionId: subscriptionId };
     try {
       const response = await fetch(
-        'http://localhost:8080/api/auth/cancel-subscription',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/cancel-subscription`,
         {
           method: 'POST',
           headers: {

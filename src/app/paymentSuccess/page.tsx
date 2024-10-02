@@ -33,7 +33,7 @@ const PaymentSuccess = () => {
     } else {
       console.log(user.uid);
       const subscriptionStatus = await fetch(
-        `http://localhost:8080/api/auth/get-subscriptions/${user.uid}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/get-subscriptions/${user.uid}`,
         {
           method: 'GET',
           headers: {

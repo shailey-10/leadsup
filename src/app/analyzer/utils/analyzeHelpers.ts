@@ -21,7 +21,7 @@ export const analyzeSearch = async (
   searches: number,
   setSearches: (searches: number) => void
 ) => {
-  const apiUrl = `http://localhost:8080/api/leads/getData`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/leads/getData`;
   const requestData = { url: searchQuery };
 
   try {
@@ -159,7 +159,7 @@ export const analyzeUrls = async (
   parsedData: any[],
   leads?: boolean
 ) => {
-  const apiUrl = `http://localhost:8080/api/analyzer/audit`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/analyzer/audit`;
   let requestData;
   if (leads) {
     requestData = { url: dataToAnalyze, leads: true };

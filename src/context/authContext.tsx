@@ -32,7 +32,7 @@ export const AuthContextProvider = ({ children }: any) => {
       setIdToken(newIdToken);
       // Send token to backend for user management
       const response = await fetch(
-        `http://localhost:8080/api/auth/google-signin`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-signin`,
         {
           method: 'POST',
           headers: {
@@ -79,7 +79,7 @@ export const AuthContextProvider = ({ children }: any) => {
           if (userData?.subscription_id) {
             console.log('getting sub');
             const subscriptionStatus = await fetch(
-              `http://localhost:8080/api/auth/get-subscriptions/${currentUser.uid}`,
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/get-subscriptions/${currentUser.uid}`,
               {
                 method: 'GET',
                 headers: {

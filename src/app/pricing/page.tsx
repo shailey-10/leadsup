@@ -9,6 +9,8 @@ import styles from './pricing.module.css';
 const Pricing = () => {
   const { idToken, user, role } = UserAuth();
   const router = useRouter();
+  const url = new URL(window.location.href);
+  url.pathname = '';
   useEffect(() => {
     if (user?.uid && role === 'member') {
       router.push('/analyzer');
@@ -24,24 +26,24 @@ const Pricing = () => {
 
       if (planName === 'agency +') {
         router.push(
-          `https://leadslyfter-test.chargebee.com/hosted_pages/checkout` +
+          `${process.env.NEXT_PUBLIC_CHARGEBEE_URL}/hosted_pages/checkout` +
             `?subscription_items[item_price_id][0]=Pro-USD-Monthly` +
             `&subscription_items[quantity][0]=1` +
             `&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=https://localhost:3000/paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
         );
       } else if (planName === 'freelancer') {
         router.push(
-          `https://leadslyfter-test.chargebee.com/hosted_pages/checkout?subscription_items[item_price_id][0]=Basic-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
+          `${process.env.NEXT_PUBLIC_CHARGEBEE_URL}/hosted_pages/checkout?subscription_items[item_price_id][0]=Basic-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=https://localhost:3000/paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
         );
       } else {
         router.push(
-          `https://leadslyfter-test.chargebee.com/hosted_pages/checkout?subscription_items[item_price_id][0]=Plus-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
+          `${process.env.NEXT_PUBLIC_CHARGEBEE_URL}/hosted_pages/checkout?subscription_items[item_price_id][0]=Plus-USD-Monthly&subscription_items[quantity][0]=1&layout=in_app` +
             `&customer[email]=${encodeURIComponent(user.email)}` +
-            `&redirect_url=https://localhost:3000/paymentSuccess?checkoutId=${uniqueId}`
+            `&redirect_url=${url}paymentSuccess?checkoutId=${uniqueId}`
         );
       }
     }

@@ -1,7 +1,9 @@
-"use client";
-import { UserAuth } from "@/context/authContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+'use client';
+import { UserAuth } from '@/context/authContext';
+import GoogleIcon from '@mui/icons-material/Google';
+import Image from 'next/image'; // Add this import
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const Signup = () => {
   const { googleSignIn, user, role } = UserAuth();
@@ -16,38 +18,72 @@ const Signup = () => {
   };
 
   useEffect(() => {
-    if (user != null && role && role === "member") {
-      router.push("/analyzer");
+    if (user?.uid && role) {
+      router.push('/home');
     }
-    if (user && role && role === "viewer") {
-      router.push("/pending");
-    }
-  }, [user]);
+  }, [role, router, user]);
 
   return (
     <div className="container">
       <div className="signup-content">
         <div className="signup-form">
-          <h1>Join Our Community</h1>
-          <p>Welcome to our platform. Sign up to get started!</p>
-          <button onClick={handleGoogleSignIn} className="google-signin">
-            Sign up with Google
-          </button>
+          <h1>Sign In to get started!</h1>
+          <p>
+            Start analyzing websites, generating leads, and optimizing outreach.
+          </p>
+          <div onClick={handleGoogleSignIn} className="google">
+            <div className="icon">
+              <GoogleIcon />
+            </div>
+            <div className="content">Sign in with google</div>
+          </div>
         </div>
         <div className="illustration">
-          <img src="/signup.svg" alt="Signup Illustration" />
+          <Image
+            src="/signup.svg"
+            alt="Signup Illustration"
+            height={400}
+            width={400}
+          />{' '}
         </div>
       </div>
 
       <style jsx>{`
+        .google {
+          display: flex;
+          border: none;
+          margin: 0 auto;
+          border-radius: 5px;
+          cursor: pointer;
+          gap: 10px;
+          border: 1px solid #8976fd;
+          width: fit-content;
+          align-items: center;
+        }
 
+        .icon {
+          margin-top: 5px;
+          padding: 0 5px;
+          margin-left: 8px;
+        }
+
+        .content {
+          background: #8976fd;
+          display: flex;
+          align-items: center;
+          height: 40px;
+          color: #fff;
+          padding: 0 25px;
+        }
 
         .signup-content {
-          margin: auto
+          margin: auto;
           display: flex;
           text-align: center;
+          align-items: center;
+          min-height: 80vh;
           justify-content: space-around;
-          width: 100%;
+          width: 80%;
         }
 
         .signup-form {
@@ -79,7 +115,6 @@ const Signup = () => {
         }
 
         .illustration {
-       
         }
 
         .illustration img {

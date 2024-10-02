@@ -11,10 +11,9 @@ const UserPending = () => {
       router.push("/signup");
     }
     if (user && role && role !== "viewer") {
-      router.push("/analyzer");
+      router.push("/home");
     }
-    console.log(user, role);
-  }, [user, role]);
+  }, [user, role, router]);
   return (
     <div style={{ textAlign: "center" }}>
       Plase wait for admin to approve your account

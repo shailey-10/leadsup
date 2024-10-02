@@ -1,15 +1,14 @@
-import { AuthContextProvider } from "@/context/authContext";
-import { Inter } from "next/font/google";
-import Footer from "./components/Footer/Footer";
-import NavBar from "./components/NavBar/NavBar";
-import "./globals.css";
-import { Providers } from "./redux/provider";
-
-const inter = Inter({ subsets: ["latin"] });
+import { AuthContextProvider } from '@/context/authContext';
+import Script from 'next/script';
+import ClientRedirect from './components/ClientRedirect';
+import Footer from './components/Footer/Footer';
+import NavBar from './components/NavBar/NavBar';
+import './globals.css';
+import { ReduxProvider } from './redux/provider';
 
 export const metadata = {
-  title: "Leads Lyfter",
-  description: "Quality leads for your agency",
+  title: 'Leads Lyfter',
+  description: 'Quality leads for your agency',
 };
 
 export default function RootLayout({
@@ -19,14 +18,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AuthContextProvider>
-          <Providers>
-            {<NavBar />}
+      <head>
+        <Script
+          src="https://js.chargebee.com/v2/chargebee.js"
+          data-cb-site="leadslyfter"
+        />
+      </head>
+      <body>
+        <ReduxProvider>
+          <AuthContextProvider>
+            <ClientRedirect />
+            <NavBar />
             {children}
-            {<Footer />}
-          </Providers>
-        </AuthContextProvider>
+            <Footer />
+          </AuthContextProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

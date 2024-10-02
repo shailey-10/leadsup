@@ -17,7 +17,6 @@ const graphcms = new GraphQLClient(
 
 const Blog = () => {
   // const posts = use(getPosts());
-  // console.log(posts);
   return (
     <div>
       <main className={styles.main}>

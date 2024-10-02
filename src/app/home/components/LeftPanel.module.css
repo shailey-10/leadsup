@@ -1,0 +1,73 @@
+.leftPanel {
+  width: 250px;
+  background-color: #fff;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  height: 100vh;
+  top: 0;
+}
+
+.logout {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logout img {
+  border-radius: 50px;
+}
+
+.logout p,
+.logout span {
+  font-size: 14px;
+  line-height: 14px;
+}
+
+.logout span {
+  color: #a5a5a5;
+}
+
+.leftPanel h1 {
+  margin-bottom: 2rem;
+}
+
+.leftPanel ul {
+  margin-top: 4rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+.leftPanel li {
+  margin-bottom: 1rem;
+  line-height: 2.5rem;
+}
+
+.active {
+  color: #4a4aff !important;
+}
+
+.leftPanel a {
+  text-decoration: none;
+  color: #333;
+}
+
+.leftPanel a:hover {
+  text-decoration: underline !important;
+  text-underline-offset: 6px;
+  text-decoration-color: #4a4aff !important;
+}
+
+.logo {
+  padding: 20px 0px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #35324c;
+}
+
+.logo span {
+  color: #8976fd;
+}

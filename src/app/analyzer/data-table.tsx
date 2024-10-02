@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   ColumnDef,
@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -16,12 +16,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import exportFromJSON from "export-from-json";
-import React, { useRef } from "react";
-import { useSelector } from "react-redux";
-import styles from "./dataTable.module.css";
+import { UserAuth } from '@/context/authContext';
+import React, { useRef } from 'react';
+import styles from './dataTable.module.css';
+import useAnalyzerStates from './hooks/useAnalyzerStates';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,10 +33,52 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const { plan } = UserAuth();
+  const { activeTab } = useAnalyzerStates();
+  let filteredColumns = columns;
+  if (activeTab === 'url') {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'Address' &&
+        column.accessorKey !== 'Name' &&
+        column.accessorKey !== 'reviews' &&
+        column.accessorKey !== 'rating' &&
+        column.accessorKey !== 'Website'
+    );
+  }
+  if (activeTab === 'csv') {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'Address' &&
+        column.accessorKey !== 'reviews' &&
+        column.accessorKey !== 'rating'
+    );
+  }
+  if (
+    plan &&
+    plan !== 'Free' &&
+    plan !== 'Pro-USD-Monthly' &&
+    plan !== 'Plus-USD-Monthly'
+  ) {
+    filteredColumns = filteredColumns.filter(
+      (column) =>
+        'accessorKey' in column &&
+        column.accessorKey !== 'google' &&
+        column.accessorKey !== 'facebook' &&
+        column.accessorKey !== 'linkedin' &&
+        column.accessorKey !== 'twitter' &&
+        column.accessorKey !== 'analytics' &&
+        column.accessorKey !== 'gtm' &&
+        column.accessorKey !== 'isResponsive' &&
+        column.accessorKey !== 'pageSpeed'
+    );
+  }
 
   const table = useReactTable({
     data,
-    columns,
+    columns: filteredColumns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -46,40 +88,16 @@ export function DataTable<TData, TValue>({
   });
   const tableRef = useRef(null);
 
-  const { filteredWebsiteData } = useSelector(
-    (state: any) => state.filteredWebsiteData
-  );
-
-  function downloadCsv() {
-    const data = [...filteredWebsiteData];
-    console.log(filteredWebsiteData);
-    const fileName = "Leads Data";
-    const exportType = exportFromJSON.types.csv;
-    exportFromJSON({ data, fileName, exportType });
-  }
-
   return (
     <>
-      <button
-        style={{
-          backgroundColor: "#000",
-          padding: "10px 18px",
-          color: "#fff",
-          borderRadius: "6px",
-          marginBottom: "10px",
-        }}
-        onClick={downloadCsv}
-      >
-        Export to csv
-      </button>
       <div
         style={{
-          maxWidth: "1500px",
-          maxHeight: "70vh",
-          margin: "0 auto",
-          overflow: "scroll",
-          border: "1px solid #333",
-          marginBottom: "30px",
+          maxWidth: '1250px',
+          maxHeight: '70vh',
+          overflow: 'scroll',
+          border: '1px solid #333',
+          marginBottom: '30px',
+          marginTop: '30px',
         }}
         className="rounded-md border"
       >
@@ -107,7 +125,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={styles.cell}>
@@ -122,7 +140,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={filteredColumns.length}
                   className="h-24 text-center"
                 >
                   No results.

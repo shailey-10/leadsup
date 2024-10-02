@@ -1,30 +1,34 @@
-"use client";
+'use client';
 
-import AirplayIcon from "@mui/icons-material/Airplay";
-import CancelIcon from "@mui/icons-material/Cancel";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import PinterestIcon from "@mui/icons-material/Pinterest";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
-import { JSX } from "react";
-import { setFilteredWebsiteData } from "../redux/filteredWebsiteData";
-import store from "../redux/store";
-import { customDispatch } from "./customDispatchHook";
+import AirplayIcon from '@mui/icons-material/Airplay';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import PinterestIcon from '@mui/icons-material/Pinterest';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import { ColumnDef } from '@tanstack/react-table';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { ArrowUpDown, Download } from 'lucide-react';
+import { JSX } from 'react';
+import ReactDOM from 'react-dom'; // Import ReactDOM
+import { setFilteredWebsiteData } from '../redux/analyzerSlice';
+import { store } from '../redux/store';
+import Report from '../report/page';
+import { customDispatch } from './customDispatchHook';
 
-let sortOrder = "asc";
+let sortOrder = 'asc';
 
 interface ObjectType {
-  [key: string]: number | string | undefined; // Replace with the actual types of your properties
+  [key: string]: number | string | undefined;
 }
 
 function sortBy(property: string) {
   const state = store.getState();
-  const filteredWebsiteData = state.filteredWebsiteData.filteredWebsiteData;
-  const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+  const filteredWebsiteData = state.analyzer.filteredWebsiteData;
+  const newSortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
 
   const sortedData = [...filteredWebsiteData].sort(
     (a: ObjectType, b: ObjectType) => {
@@ -41,7 +45,7 @@ function sortBy(property: string) {
       if (bValue === 0 && aValue !== 0) return -1;
 
       // Sort based on ascending or descending order
-      if (newSortOrder === "asc") {
+      if (newSortOrder === 'asc') {
         return aValue - bValue;
       } else {
         return bValue - aValue;
@@ -52,397 +56,581 @@ function sortBy(property: string) {
   customDispatch(setFilteredWebsiteData(sortedData));
   sortOrder = newSortOrder;
 }
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-// export type Payment = {
-//   id: string;
-//   amount: number;
-//   status: "pending" | "processing" | "success" | "failed";
-//   email: string;
-// };
+
+const downloadReportAsPDF = (rowData: any) => {
+  const reportContainer = document.createElement('div');
+  document.body.appendChild(reportContainer);
+
+  // Render the report into the newly created div
+  ReactDOM.render(<Report {...rowData} />, reportContainer);
+
+  // Ensure that the chart is fully rendered
+  const waitForChartRender = () => {
+    const chart = reportContainer.querySelector('canvas'); // Adjust this selector if needed
+    if (chart && chart.width > 0 && chart.height > 0) {
+      return true; // Chart is rendered
+    }
+    return false; // Chart is not ready yet
+  };
+
+  const checkChartRendered = setInterval(() => {
+    if (waitForChartRender()) {
+      clearInterval(checkChartRendered);
+      captureAndDownloadPDF(reportContainer);
+    }
+  }, 100); // Check every 100ms
+};
+
+const captureAndDownloadPDF = (reportContainer: HTMLElement) => {
+  html2canvas(reportContainer, {
+    allowTaint: true,
+    useCORS: true,
+  }).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // Calculate number of pages needed
+    const pageHeight = pdf.internal.pageSize.height;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // Add images to PDF, split into pages if needed
+    while (heightLeft >= 0) {
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      position -= pageHeight; // Move down for next page
+      if (heightLeft >= 0) {
+        pdf.addPage(); // Add a new page if there's still content left
+      }
+    }
+
+    pdf.save('report.pdf');
+
+    // Clean up the report container after PDF is downloaded
+    document.body.removeChild(reportContainer);
+  });
+};
 
 export const columns: ColumnDef<any>[] = [
-  { accessorKey: "Name", header: "Name" },
   {
-    accessorKey: "google",
-    header: "Google Ads",
+    accessorKey: 'Download',
+    header: 'Report',
     cell: ({ row }) => {
-      const google: any = row.getValue("google");
+      // Access the entire row data
+      const rowData: any = row.original;
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {google !== "No Data" ? (
+        <div
+          style={{ textAlign: 'center', cursor: 'pointer' }}
+          className="text-right font-medium"
+        >
+          <Download onClick={() => downloadReportAsPDF(rowData)} />
+        </div>
+      );
+    },
+  },
+  { accessorKey: 'Name', header: 'Name' },
+  {
+    accessorKey: 'google',
+    header: 'Google Pixel',
+    cell: ({ row }) => {
+      const google: any = row.getValue('google');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {google !== undefined ? (
             <>
               <p>
                 {google ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "facebook",
-    header: "FacebookAds",
+    accessorKey: 'facebook',
+    header: 'Facebook Pixel',
     cell: ({ row }) => {
-      const facebook: any = row.getValue("facebook");
+      const facebook: any = row.getValue('facebook');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {facebook !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {facebook !== undefined ? (
             <>
               <p>
                 {facebook ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "linkedin",
-    header: "Linkedin Ads",
+    accessorKey: 'linkedin',
+    header: 'Linkedin Pixel',
     cell: ({ row }) => {
-      const linkedin: any = row.getValue("linkedin");
+      const linkedin: any = row.getValue('linkedin');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {linkedin !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {linkedin !== undefined ? (
             <>
               <p>
                 {linkedin ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "twitter",
-    header: "Twitter Ads",
+    accessorKey: 'twitter',
+    header: 'Twitter Pixel',
     cell: ({ row }) => {
-      const twitter: any = row.getValue("twitter");
+      const twitter: any = row.getValue('twitter');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {twitter !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {twitter !== undefined ? (
             <>
               <p>
                 {twitter ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "analytics",
-    header: "Google Analytics",
+    accessorKey: 'analytics',
+    header: 'Google Analytics',
     cell: ({ row }) => {
-      const analytics: any = row.getValue("analytics");
+      const analytics: any = row.getValue('analytics');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {analytics !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {analytics !== undefined ? (
             <>
               <p>
                 {analytics ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "gtm",
-    header: "GTM",
+    accessorKey: 'gtm',
+    header: 'GTM',
     cell: ({ row }) => {
-      const gtm: any = row.getValue("gtm");
+      const gtm: any = row.getValue('gtm');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {gtm !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {gtm !== undefined ? (
             <>
               <p>
                 {gtm ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "mailtoLinks",
-    header: "Clickable Email",
+    accessorKey: 'ssl',
+    header: 'SSL',
     cell: ({ row }) => {
-      const mailtoLinks: any = row.getValue("mailtoLinks");
+      const ssl: any = row.getValue('ssl');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {mailtoLinks !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {ssl !== undefined ? (
+            <>
+              <p>
+                {ssl ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'mailtoLinks',
+    header: 'Clickable Email',
+    cell: ({ row }) => {
+      const mailtoLinks: any = row.getValue('mailtoLinks');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {mailtoLinks !== undefined ? (
             <>
               <p>
                 {mailtoLinks ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "telLinks",
-    header: "Clickable Phone",
+    accessorKey: 'telLinks',
+    header: 'Clickable Phone',
     cell: ({ row }) => {
-      const telLinks: any = row.getValue("telLinks");
+      const telLinks: any = row.getValue('telLinks');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {telLinks !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {telLinks !== undefined ? (
             <>
               <p>
                 {telLinks ? (
                   <CheckCircleIcon
                     sx={{
-                      color: "#047a00",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 ) : (
                   <CancelIcon
                     sx={{
-                      color: "#ff5e5e",
-                      fontSize: "18px",
-                      marginRight: "5px",
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
                     }}
                   />
                 )}
               </p>
             </>
           ) : (
-            "No data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
-
   {
-    accessorKey: "socialMediaLinks",
-    header: "Social Media",
+    accessorKey: 'rating',
+    header: () => {
+      return (
+        <button
+          style={{
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
+            fontWeight: 800,
+            fontSize: '12px',
+          }}
+          onClick={() => sortBy('rating')}
+        >
+          <h2>Google Rating </h2>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      );
+    },
     cell: ({ row }) => {
-      const socialMediaLinks: any = row.getValue("socialMediaLinks");
+      const rating: any = row.getValue('rating');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {rating && rating !== undefined ? (
+            <>
+              <p>{rating}</p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'reviews',
+    header: () => {
+      return (
+        <button
+          style={{
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
+            fontWeight: 800,
+            fontSize: '12px',
+          }}
+          onClick={() => sortBy('reviews')}
+        >
+          <h2>No of Reviews </h2>
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </button>
+      );
+    },
+    cell: ({ row }) => {
+      const reviews: any = row.getValue('reviews');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {reviews && reviews !== undefined ? (
+            <>
+              <p>{reviews}</p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'socialMediaLinks',
+    header: 'Social Media',
+    cell: ({ row }) => {
+      const socialMediaLinks: any = row.original.socialMediaLinks;
       const options = [
-        "instagram.com",
-        "facebook.com",
-        "twitter.com",
-        "yelp.com",
-        "pinterest.com",
-        "linkedin.com",
+        'instagram.com',
+        'facebook.com',
+        'twitter.com',
+        'yelp.com',
+        'pinterest.com',
+        'linkedin.com',
       ];
       function getIcon(social: string, enabled: boolean) {
         switch (social) {
-          case "instagram.com":
+          case 'instagram.com':
             return (
               <InstagramIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
 
-          case "yelp.com":
+          case 'yelp.com':
             return (
               <AirplayIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
-          case "facebook.com":
+          case 'facebook.com':
             return (
               <FacebookIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
-          case "twitter.com":
+          case 'twitter.com':
             return (
               <TwitterIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
 
-          case "pinterest.com":
+          case 'pinterest.com':
             return (
               <PinterestIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
-          case "linkedin.com":
+          case 'linkedin.com':
             return (
               <LinkedInIcon
                 sx={{
-                  color: enabled ? "#047a00" : "#8f8f8f",
-                  fontSize: "18px",
-                  marginRight: "5px",
+                  color: enabled ? '#047a00' : '#8f8f8f',
+                  fontSize: '18px',
+                  marginRight: '5px',
                 }}
               />
             );
         }
       }
       let renderData: (JSX.Element | undefined)[] = [];
-      let availableSocials: string | string[] = [];
-      let unavailableSocials: string | string[] = [];
-      if (socialMediaLinks && socialMediaLinks !== "No Data") {
-        availableSocials = Object.keys(socialMediaLinks);
-        unavailableSocials = options.filter(
-          (item) => !availableSocials.includes(item)
+      if (socialMediaLinks && socialMediaLinks !== undefined) {
+        const { available, unavailable } = options.reduce(
+          (acc: any, option) => {
+            const foundLink = socialMediaLinks.find((link: any) =>
+              link.includes(option)
+            );
+            if (foundLink) {
+              acc.available.push(option); // Add to available if found
+            } else {
+              acc.unavailable.push(option); // Add to unavailable if not found
+            }
+            return acc;
+          },
+          { available: [], unavailable: [] }
         );
-        availableSocials.map((item) => {
+        let availableSocials = available;
+        let unavailableSocials = unavailable;
+
+        availableSocials.map((item: string) => {
           renderData.push(getIcon(item, true));
         });
-        unavailableSocials.map((item) => {
+        unavailableSocials.map((item: string) => {
           renderData.push(getIcon(item, false));
         });
       }
@@ -455,97 +643,164 @@ export const columns: ColumnDef<any>[] = [
               })}
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "isResponsive",
-    header: "Responsiveness",
+    accessorKey: 'isResponsive',
+    header: 'Responsiveness',
     cell: ({ row }) => {
-      const responsiveInfo: any = row.getValue("isResponsive");
+      const responsiveInfo: any = row.getValue('isResponsive');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {responsiveInfo && responsiveInfo !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {responsiveInfo && responsiveInfo !== undefined ? (
             <>
               {responsiveInfo ? (
                 <CheckCircleIcon
                   sx={{
-                    color: "#047a00",
-                    fontSize: "18px",
-                    marginRight: "5px",
+                    color: '#047a00',
+                    fontSize: '18px',
+                    marginRight: '5px',
                   }}
                 />
               ) : (
                 <CancelIcon
                   sx={{
-                    color: "#ff5e5e",
-                    fontSize: "18px",
-                    marginRight: "5px",
+                    color: '#ff5e5e',
+                    fontSize: '18px',
+                    marginRight: '5px',
                   }}
                 />
               )}
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "h1Count",
-    header: "H1 Optimazation",
+    accessorKey: 'metaDescriptions',
+    header: 'Description Optm',
     cell: ({ row }) => {
-      const headingInfo: any = row.getValue("h1Count");
-      console.log(headingInfo);
+      const metaDescriptions: any = row.getValue('metaDescriptions');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {headingInfo !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {metaDescriptions !== undefined ? (
             <>
-              {headingInfo ? (
+              {metaDescriptions.length <= 160 && metaDescriptions.length > 0 ? (
                 <CheckCircleIcon
                   sx={{
-                    color: "#047a00",
-                    fontSize: "18px",
-                    marginRight: "5px",
+                    color: '#047a00',
+                    fontSize: '18px',
+                    marginRight: '5px',
                   }}
                 />
               ) : (
                 <CancelIcon
                   sx={{
-                    color: "#ff5e5e",
-                    fontSize: "18px",
-                    marginRight: "5px",
+                    color: '#ff5e5e',
+                    fontSize: '18px',
+                    marginRight: '5px',
                   }}
                 />
               )}
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "imageInfo",
+    accessorKey: 'metaTitle',
+    header: 'Title Optm',
+    cell: ({ row }) => {
+      const metaTitle: any = row.getValue('metaTitle');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {metaTitle && metaTitle !== undefined ? (
+            <>
+              {metaTitle.length <= 60 ? (
+                <CheckCircleIcon
+                  sx={{
+                    color: '#047a00',
+                    fontSize: '18px',
+                    marginRight: '5px',
+                  }}
+                />
+              ) : (
+                <CancelIcon
+                  sx={{
+                    color: '#ff5e5e',
+                    fontSize: '18px',
+                    marginRight: '5px',
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'h1Count',
+    header: 'H1 Optimazation',
+    cell: ({ row }) => {
+      const headingInfo: any = row.getValue('h1Count');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {headingInfo !== undefined ? (
+            <>
+              {Number(headingInfo) === 1 ? (
+                <CheckCircleIcon
+                  sx={{
+                    color: '#047a00',
+                    fontSize: '18px',
+                    marginRight: '5px',
+                  }}
+                />
+              ) : (
+                <CancelIcon
+                  sx={{
+                    color: '#ff5e5e',
+                    fontSize: '18px',
+                    marginRight: '5px',
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'imageInfo',
     header: () => {
       return (
         <button
           style={{
-            backgroundColor: "transparent",
-            outline: "none",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            color: "#fff",
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
             fontWeight: 800,
-            fontSize: "12px",
+            fontSize: '12px',
           }}
-          onClick={() => sortBy("imageInfo")}
+          onClick={() => sortBy('imageInfo')}
         >
           <h2>Image Optimization </h2>
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -553,36 +808,36 @@ export const columns: ColumnDef<any>[] = [
       );
     },
     cell: ({ row }) => {
-      const imageInfo: any = row.getValue("imageInfo");
+      const imageInfo: any = row.getValue('imageInfo');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {imageInfo && imageInfo !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {imageInfo && imageInfo !== undefined ? (
             <>
               <p>{Math.floor(imageInfo)}%</p>
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "pageSpeed",
+    accessorKey: 'pageSpeed',
     header: () => {
       return (
         <button
           style={{
-            backgroundColor: "transparent",
-            outline: "none",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            color: "#fff",
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
             fontWeight: 800,
-            fontSize: "12px",
+            fontSize: '12px',
           }}
-          onClick={() => sortBy("pageSpeed")}
+          onClick={() => sortBy('pageSpeed')}
         >
           <h2>Page Speed </h2>
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -590,36 +845,36 @@ export const columns: ColumnDef<any>[] = [
       );
     },
     cell: ({ row }) => {
-      const pageSpeed: any = row.getValue("pageSpeed");
+      const pageSpeed: any = row.getValue('pageSpeed');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {pageSpeed && pageSpeed !== "No Data" ? (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {pageSpeed && pageSpeed !== undefined ? (
             <>
-              <p>{Math.floor(pageSpeed)}s</p>
+              <p>{Math.ceil(pageSpeed)}s</p>
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
   {
-    accessorKey: "internalLinks",
+    accessorKey: 'internalLinks',
     header: () => {
       return (
         <button
           style={{
-            backgroundColor: "transparent",
-            outline: "none",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            color: "#fff",
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
             fontWeight: 800,
-            fontSize: "12px",
+            fontSize: '12px',
           }}
-          onClick={() => sortBy("internalLinks")}
+          onClick={() => sortBy('internalLinks')}
         >
           <h2>Internal Links </h2>
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -628,31 +883,31 @@ export const columns: ColumnDef<any>[] = [
     },
 
     cell: ({ row }) => {
-      const internalLinks: any = row.getValue("internalLinks");
+      const internalLinks: any = row.getValue('internalLinks');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {internalLinks}
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {internalLinks !== undefined ? internalLinks : 'Too slow'}
         </div>
       );
     },
   },
 
   {
-    accessorKey: "externalLinks",
+    accessorKey: 'externalLinks',
     header: () => {
       return (
         <button
           style={{
-            backgroundColor: "transparent",
-            outline: "none",
-            border: "none",
-            display: "flex",
-            alignItems: "center",
-            color: "#fff",
+            backgroundColor: 'transparent',
+            outline: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff',
             fontWeight: 800,
-            fontSize: "12px",
+            fontSize: '12px',
           }}
-          onClick={() => sortBy("externalLinks")}
+          onClick={() => sortBy('externalLinks')}
         >
           <h2>External Links </h2>
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -660,71 +915,92 @@ export const columns: ColumnDef<any>[] = [
       );
     },
     cell: ({ row }) => {
-      const externalLinks: any = row.getValue("externalLinks");
+      const externalLinks: any = row.getValue('externalLinks');
       return (
-        <div style={{ textAlign: "center" }} className="text-right font-medium">
-          {externalLinks}
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {externalLinks !== undefined ? externalLinks : 'Too slow'}
         </div>
       );
     },
   },
 
   {
-    accessorKey: "primaryH1",
-    header: "Primary H1",
+    accessorKey: 'primaryH1',
+    header: 'Primary H1',
     cell: ({ row }) => {
-      const headingInfo: any = row.getValue("primaryH1");
+      const headingInfo: any = row.getValue('primaryH1');
       return (
         <div className="text-right font-medium">
-          {headingInfo ? (
+          {headingInfo !== undefined ? (
             <>
-              <p>{headingInfo ? headingInfo : "No H1 found"}</p>
+              <p>{headingInfo ? headingInfo : 'No H1 found'}</p>
             </>
           ) : (
-            "No Data"
+            'Too slow'
           )}
         </div>
       );
     },
   },
 
-  { accessorKey: "metaDescriptions", header: "Meta Descriptions" },
-  { accessorKey: "Website", header: "Website" },
-
-  { accessorKey: "Phone", header: "Phone" },
   {
-    accessorKey: "email",
-    header: "Emails",
+    accessorKey: 'metaDescriptions',
+    header: 'Meta Descriptions',
     cell: ({ row }) => {
-      const emailInfo: any = row.getValue("email");
+      const metaDesc: any = row.getValue('metaDescriptions');
+      return (
+        <div className="text-right font-medium">
+          {metaDesc !== undefined ? (
+            <>
+              <p>{metaDesc ? metaDesc : 'No meta description'}</p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  { accessorKey: 'url', header: 'Website' },
+
+  {
+    accessorKey: 'Phone',
+    header: 'Phone',
+    cell: ({ row }) => {
+      const phoneInfo: any = row.getValue('Phone');
+      return (
+        <div
+          style={{ display: 'flex', gap: '20px' }}
+          className="text-right font-medium"
+        >
+          {phoneInfo && phoneInfo.length > 0
+            ? phoneInfo.map((item: string, i: number) => {
+                return <p key={i}>{item.replace('tel:', '')},</p>;
+              })
+            : phoneInfo !== undefined
+            ? 'No Phone found'
+            : 'Too slow'}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'email',
+    header: 'Emails',
+    cell: ({ row }) => {
+      const emailInfo: any = row.getValue('email');
       return (
         <div className="text-right font-medium">
           {emailInfo && emailInfo.length > 0
             ? emailInfo.map((item: string, i: number) => {
-                return <p key={i}>{item}</p>;
+                return <p key={i}>{item.replace('mailto:', '')}</p>;
               })
-            : "No email id found"}
+            : emailInfo !== undefined
+            ? 'No Email found'
+            : 'Too slow'}
         </div>
       );
     },
   },
-  {
-    accessorKey: "phone",
-    header: "Contact Number",
-
-    cell: ({ row }) => {
-      const phoneInfo: any = row.getValue("phone");
-      return (
-        <div className="text-right font-medium">
-          {phoneInfo && phoneInfo.length > 0
-            ? phoneInfo.map((item: string, i: number) => {
-                return <p key={i}>{item}</p>;
-              })
-            : "No contact number found"}
-        </div>
-      );
-    },
-  },
-
-  { accessorKey: "Address", header: "Address" },
+  { accessorKey: 'Address', header: 'Address' },
 ];

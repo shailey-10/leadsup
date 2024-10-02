@@ -1,25 +1,13 @@
-"use client";
+'use client';
 
-import { UserAuth } from "@/context/authContext";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Button from "./components/Button/Button";
-import UspCard from "./components/UspCard/UspCard";
-import { HIGHLIGHTS, USP_CARDS } from "./constants/constants";
-import styles from "./page.module.css";
+import Image from 'next/image';
+import Link from 'next/link';
+import Button from './components/Button/Button';
+import UspCard from './components/UspCard/UspCard';
+import { HIGHLIGHTS, USP_CARDS } from './constants/constants';
+import styles from './page.module.css';
 
 export default function Home() {
-  const router = useRouter();
-  const { user, role } = UserAuth();
-  useEffect(() => {
-    if (user && role && role === "member") {
-      router.push("/analyzer");
-    } else if (user?.displayName && role && role === "viewer") {
-      router.push("/pending");
-    }
-  }, [user]);
   return (
     <>
       <div className={styles.radial}></div>
@@ -27,26 +15,28 @@ export default function Home() {
         <div className={styles.hero}>
           <div className={styles.content}>
             <h1>
-              <span> Supercharge </span>Your Agency&apos;s <br /> Growth with{" "}
+              <span> Supercharge </span>Your Agency&apos;s <br /> Growth with{' '}
               <span> Qualified </span> Leads
             </h1>
             <p>
               Equip your agency with powerful insights to reach businesses in
               need of your expertise and secure high-value clients effortlessly.
             </p>
-            <Link href={"/pricing"}>
-              {" "}
-              <Button text={"Get Started Now"} type={"Primary"} />
+            <Link href={'/signup'}>
+              {' '}
+              <Button text={'Get Started Now'} type={'Primary'} />
             </Link>
           </div>
           <div className={styles.image}>
-            <Image
-              src={"/Hero.png"}
-              alt="Hero Image"
-              width={600}
-              height={400}
-              priority
-            ></Image>
+            <iframe
+              src="https://player.vimeo.com/video/1015170434?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479?title=0&byline=0&portrait=0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
+              title="Leads Lyfter - Demo"
+              width="560"
+              style={{ borderRadius: '10px' }}
+              height="315"
+              frameBorder={0}
+            ></iframe>
           </div>
         </div>
         <div className={styles.uspContainer}>
@@ -66,7 +56,7 @@ export default function Home() {
 
           <h2>
             A business running facebook ads having a site that&apos;s not
-            responsive for mobile, sounds like an{" "}
+            responsive for mobile, sounds like an{' '}
             <span> ideal target client right?</span>
           </h2>
           <p>
@@ -89,11 +79,13 @@ export default function Home() {
             to identify high-quality leads, optimize your campaigns, and propel
             your agency&apos;s success.
           </p>
-          <img
+          <Image
             className={styles.highlightImage}
-            src={"/product.png"}
-            alt="Hero img"
-          ></img>
+            src="/DashboardSnapshot.svg"
+            alt="Product image"
+            width={500}
+            height={300}
+          />
           <div className={styles.uspContainer}>
             {HIGHLIGHTS.map((card, i) => {
               return (
@@ -120,16 +112,12 @@ export default function Home() {
               marketing campaigns, and more. Get exclusive access to our
               groundbreaking features before anyone else.
             </p>
-            <form action="https://submit-form.com/NrcdWE3k">
-              <div className={styles.form}>
-                <input
-                  type="text"
-                  name="email"
-                  placeholder="Enter your email"
-                />
-                <Button text={"Sign Up"} type={"CTA"} />
-              </div>
-            </form>
+            <div className={styles.form}>
+              <Link href={'/signup'}>
+                {' '}
+                <Button text={'Get Started Now'} type={'Secondary'} />
+              </Link>
+            </div>
           </div>
         </div>
       </main>

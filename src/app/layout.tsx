@@ -23,6 +23,10 @@ export default function RootLayout({
           src="https://js.chargebee.com/v2/chargebee.js"
           data-cb-site="leadslyfter"
         />
+        <Script
+          src="https://www.paypal.com/sdk/js?client-id=ASRQERd9Tc0_86cCG7mKF8ZW27St9gX1WuCqPFLqBOtpqhvN--3Tnd1O6pzDG7g875p07WDwVGl60JQt&vault=true&intent=subscription"
+          data-sdk-integration-source="button-factory"
+        />
       </head>
       <body>
         <ReduxProvider>

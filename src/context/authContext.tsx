@@ -5,7 +5,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../app/firebase-config';
 
@@ -18,7 +18,6 @@ export const AuthContextProvider = ({ children }: any) => {
   const [searches, setSearches] = useState(0);
   const [subscriptionDetails, setSubscriptionDetails] = useState({
     status: '',
-    nextBilling: '',
     planId: '',
     id: '',
   });
@@ -77,9 +76,8 @@ export const AuthContextProvider = ({ children }: any) => {
           const docSnap = await getDoc(docRef);
           const userData = docSnap.data();
           if (userData?.subscription_id) {
-            console.log('getting sub');
-            const subscriptionStatus = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/get-subscriptions/${currentUser.uid}`,
+            const subscriptionData = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/get-subscriptions/${userData?.subscription_id}`,
               {
                 method: 'GET',
                 headers: {
@@ -87,80 +85,16 @@ export const AuthContextProvider = ({ children }: any) => {
                 },
               }
             ).then((res) => res.json());
+            const subscriptionStatus = subscriptionData.subscriptions;
 
-            const currentDate = new Date().getTime() / 1000;
-
-            if (userData?.current_term_end) {
-              if (userData?.status === 'active') {
-                if (userData?.current_term_end > currentDate) {
-                  setSubscriptionDetails({
-                    status:
-                      subscriptionStatus.subscriptions[0].subscription.status,
-                    nextBilling: 'Renewal Cancelled',
-                    planId:
-                      subscriptionStatus.subscriptions[0].subscription
-                        .subscription_items[0].item_price_id,
-                    id: subscriptionStatus.subscriptions[0].subscription.id,
-                  });
-                  setPlan(userData?.plan);
-                  setRole(userData?.role);
-                  setSearches(userData?.searches);
-                } else {
-                  setSubscriptionDetails({
-                    status: 'Cancelled',
-                    nextBilling: 'Renewal Cancelled',
-                    planId: 'Free',
-                    id: subscriptionStatus.subscriptions[0].subscription.id,
-                  });
-                  const docRef = doc(db, 'user-roles', currentUser?.uid);
-                  getDoc(docRef)
-                    .then((docSnapshot) => {
-                      if (docSnapshot.exists()) {
-                        updateDoc(docRef, {
-                          status:
-                            subscriptionStatus.subscriptions[0].subscription
-                              .status,
-                          plan: 'free',
-                          role: 'viewer',
-                          searches: 0,
-                        });
-                      } else {
-                        console.log('Document does not exist.');
-                      }
-                      setPlan('Free');
-                      setRole('viewer');
-                      setSearches(0);
-                    })
-                    .catch((error) => {
-                      console.error('Error fetching document: ', error);
-                    });
-                }
-              } else {
-                setSubscriptionDetails({
-                  status: 'Cancelled',
-                  nextBilling: 'Renewal Cancelled',
-                  planId: 'Free',
-                  id: subscriptionStatus.subscriptions[0].subscription.id,
-                });
-                setPlan('Free');
-                setRole('viewer');
-                setSearches(0);
-              }
-            } else {
-              setSubscriptionDetails({
-                status: subscriptionStatus.subscriptions[0].subscription.status,
-                nextBilling:
-                  subscriptionStatus.subscriptions[0].subscription
-                    .next_billing_at,
-                planId:
-                  subscriptionStatus.subscriptions[0].subscription
-                    .subscription_items[0].item_price_id,
-                id: subscriptionStatus.subscriptions[0].subscription.id,
-              });
-              setPlan(userData?.plan);
-              setRole(userData?.role);
-              setSearches(userData?.searches);
-            }
+            setSubscriptionDetails({
+              status: subscriptionStatus?.status || 'NA',
+              planId: subscriptionStatus?.plan_id || 'Free',
+              id: subscriptionStatus?.id || 'NA',
+            });
+            setPlan(userData?.plan);
+            setRole(userData?.role);
+            setSearches(userData?.searches);
           }
         } catch (error) {
           console.error('Error fetching token:', error);

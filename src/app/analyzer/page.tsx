@@ -64,12 +64,14 @@ export default function Upload() {
 
   const handleAnalyze = () => {
     if (role !== 'member') {
-      alert('Become a member to start analyzing');
+      alert('Subscribe to start analyzing');
       router.push('/pricing');
       return;
     } else {
+      // update here when pro introduced
+
       if (plan !== 'Pro-USD-Monthly' && activeTab === 'search') {
-        alert('Become a Pro member to start generating leads');
+        alert('Become a Agency + member to start generating leads');
         return;
       }
       if (searches <= 0) {

@@ -46,6 +46,8 @@ export const HIGHLIGHTS = [
 export const plans = [
   {
     name: 'Freelancer',
+    id: 'P-9CA97503EW608442PM4MRTXQ',
+    credits: 500,
     price: '$89',
     icon: <User />,
     features: [
@@ -59,6 +61,8 @@ export const plans = [
   },
   {
     name: 'Agency',
+    credits: 2000,
+    id: 'P-6SW07264NX224922MM4MRU4Y',
     price: '$129',
     icon: <Home />,
     features: [
@@ -72,6 +76,8 @@ export const plans = [
   },
   {
     name: 'Agency +',
+    credits: 5000,
+    id: 'P-6SW07264NX224922MM4MRU4Y',
     price: '$299',
     icon: <Building />,
     features: [

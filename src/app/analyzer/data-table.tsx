@@ -56,11 +56,13 @@ export function DataTable<TData, TValue>({
         column.accessorKey !== 'rating'
     );
   }
+  // update here when pro introduced
+
   if (
     plan &&
     plan !== 'Free' &&
     plan !== 'Pro-USD-Monthly' &&
-    plan !== 'Plus-USD-Monthly'
+    plan !== 'P-6SW07264NX224922MM4MRU4Y'
   ) {
     filteredColumns = filteredColumns.filter(
       (column) =>
@@ -72,7 +74,8 @@ export function DataTable<TData, TValue>({
         column.accessorKey !== 'analytics' &&
         column.accessorKey !== 'gtm' &&
         column.accessorKey !== 'isResponsive' &&
-        column.accessorKey !== 'pageSpeed'
+        column.accessorKey !== 'pageSpeed' &&
+        column.accessorKey !== 'Download'
     );
   }
 

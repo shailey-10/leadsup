@@ -131,222 +131,7 @@ export const columns: ColumnDef<any>[] = [
     },
   },
   { accessorKey: 'Name', header: 'Name' },
-  {
-    accessorKey: 'google',
-    header: 'Google Pixel',
-    cell: ({ row }) => {
-      const google: any = row.getValue('google');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {google !== undefined ? (
-            <>
-              <p>
-                {google ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'facebook',
-    header: 'Facebook Pixel',
-    cell: ({ row }) => {
-      const facebook: any = row.getValue('facebook');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {facebook !== undefined ? (
-            <>
-              <p>
-                {facebook ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'linkedin',
-    header: 'Linkedin Pixel',
-    cell: ({ row }) => {
-      const linkedin: any = row.getValue('linkedin');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {linkedin !== undefined ? (
-            <>
-              <p>
-                {linkedin ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'twitter',
-    header: 'Twitter Pixel',
-    cell: ({ row }) => {
-      const twitter: any = row.getValue('twitter');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {twitter !== undefined ? (
-            <>
-              <p>
-                {twitter ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'analytics',
-    header: 'Google Analytics',
-    cell: ({ row }) => {
-      const analytics: any = row.getValue('analytics');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {analytics !== undefined ? (
-            <>
-              <p>
-                {analytics ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: 'gtm',
-    header: 'GTM',
-    cell: ({ row }) => {
-      const gtm: any = row.getValue('gtm');
-      return (
-        <div style={{ textAlign: 'center' }} className="text-right font-medium">
-          {gtm !== undefined ? (
-            <>
-              <p>
-                {gtm ? (
-                  <CheckCircleIcon
-                    sx={{
-                      color: '#047a00',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                ) : (
-                  <CancelIcon
-                    sx={{
-                      color: '#ff5e5e',
-                      fontSize: '18px',
-                      marginRight: '5px',
-                    }}
-                  />
-                )}
-              </p>
-            </>
-          ) : (
-            'Too slow'
-          )}
-        </div>
-      );
-    },
-  },
+
   {
     accessorKey: 'ssl',
     header: 'SSL',
@@ -851,6 +636,222 @@ export const columns: ColumnDef<any>[] = [
           {pageSpeed && pageSpeed !== undefined ? (
             <>
               <p>{Math.ceil(pageSpeed)}s</p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'google',
+    header: 'Google Pixel',
+    cell: ({ row }) => {
+      const google: any = row.getValue('google');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {google !== undefined ? (
+            <>
+              <p>
+                {google ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'facebook',
+    header: 'Facebook Pixel',
+    cell: ({ row }) => {
+      const facebook: any = row.getValue('facebook');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {facebook !== undefined ? (
+            <>
+              <p>
+                {facebook ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'linkedin',
+    header: 'Linkedin Pixel',
+    cell: ({ row }) => {
+      const linkedin: any = row.getValue('linkedin');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {linkedin !== undefined ? (
+            <>
+              <p>
+                {linkedin ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'twitter',
+    header: 'Twitter Pixel',
+    cell: ({ row }) => {
+      const twitter: any = row.getValue('twitter');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {twitter !== undefined ? (
+            <>
+              <p>
+                {twitter ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'analytics',
+    header: 'Google Analytics',
+    cell: ({ row }) => {
+      const analytics: any = row.getValue('analytics');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {analytics !== undefined ? (
+            <>
+              <p>
+                {analytics ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
+            </>
+          ) : (
+            'Too slow'
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'gtm',
+    header: 'GTM',
+    cell: ({ row }) => {
+      const gtm: any = row.getValue('gtm');
+      return (
+        <div style={{ textAlign: 'center' }} className="text-right font-medium">
+          {gtm !== undefined ? (
+            <>
+              <p>
+                {gtm ? (
+                  <CheckCircleIcon
+                    sx={{
+                      color: '#047a00',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                ) : (
+                  <CancelIcon
+                    sx={{
+                      color: '#ff5e5e',
+                      fontSize: '18px',
+                      marginRight: '5px',
+                    }}
+                  />
+                )}
+              </p>
             </>
           ) : (
             'Too slow'

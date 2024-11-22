@@ -29,7 +29,7 @@ export default function Home() {
           </div>
           <div className={styles.image}>
             <iframe
-              src="https://player.vimeo.com/video/1015170434?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479?title=0&byline=0&portrait=0"
+              src="https://player.vimeo.com/video/1032435104?h=73abbfe23f&badge=0&autopause=0&player_id=0&app_id=58479?title=0&byline=0&portrait=0"
               allow="autoplay; fullscreen; picture-in-picture; clipboard-write"
               title="Leads Lyfter - Demo"
               width="560"

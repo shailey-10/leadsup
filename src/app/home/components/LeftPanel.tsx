@@ -3,11 +3,13 @@ import { LogOut } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import styles from './LeftPanel.module.css';
 
 const LeftPanel = () => {
   const pathname = usePathname();
   const { user, logOut, role, plan } = UserAuth();
+  const [planName, setPlanName] = useState('Free');
 
   const router = useRouter();
 
@@ -20,12 +22,19 @@ const LeftPanel = () => {
     }
   };
 
+  useEffect(() => {
+    const name = getPlanName(plan);
+    setPlanName(name);
+  }, [plan]);
+
+  // update here when pro introduced
+
   const getPlanName = (planName: string) => {
     switch (planName) {
-      case 'Basic-USD-Monthly':
+      case 'P-9CA97503EW608442PM4MRTXQ':
         return 'Freelancer';
 
-      case 'Plus-USD-Monthly':
+      case 'P-6SW07264NX224922MM4MRU4Y':
         return 'Agency';
 
       case 'Pro-USD-Monthly':
@@ -93,7 +102,7 @@ const LeftPanel = () => {
           ></Image>
           <div>
             <p> {user.displayName} </p>
-            <span> {getPlanName(plan)} </span>
+            <span> {planName} </span>
           </div>
           <LogOut cursor="pointer" width={18} onClick={handleSignOut} />
         </div>
